@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Beth+Ellen&family=Homemade+Apple&family=Noto+Color+Emoji&family=Shantell+Sans:ital,wght@1,800&family=Gluten:wght@900&&display=swap" rel="stylesheet" />
+    <script src="https://map-preview-images.s3.amazonaws.com/Fonts/ishans_html2canvas.js"></script>
+    <title>Document</title>
+    <style>
+      :root {
+        --outline: black;
+      }
+
+      .label {
+        position: relative;
+        height: 30px;
+        display: flex;
+        align-items: center;
+      }
+      .label img {
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .marker-cont {
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 50px;
+      }
+
+      .marker {
+        position: relative;
+        height: 40px;
+        z-index: 99;
+      }
+
+      .message-box-cont {
+        position: absolute;
+        top: 450px;
+        left: 146px;
+        padding: 5px;
+        background-color: white;
+      }
+
+      .message-box {
+        background: white;
+        padding-bottom: 6px;
+        padding-top: 2px;
+        width: 200px;
+        text-align: center;
+        font-size: small;
+        border: 2px solid black;
+        color: black;
+        font-family: Futura std;
+      }
+
+      .map-container {
+        position: absolute;
+        padding: 10px;
+        padding-bottom: 1px;
+        width: fit-content;
+        background-color: white;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="maps-container"></div>
+    <script type="module">
+      
+      window.onmessage = (event) => {
+        if (event.data[0] && event.data[0].mapStyle) {
+          let mapData = event.data
+          mapData.forEach((item) => {
+            document.getElementById("maps-container").innerHTML += generateMapsHTML(item);
+          });
+
+          let maps = document.querySelectorAll(".map-container");
+          console.log(maps);
+          maps.forEach((el) => {
+            console.log(el);
+            html2canvas(el, {
+              dpi: "300",
+              useCORS: true,
+              onrendered: function (canvas) {
+                var canvasImg = canvas.toDataURL("image/jpg");
+                window.parent.window.postMessage(canvasImg, "http://127.0.0.1:5500/JourneyMap.html")
+              },
+            });
+          });
+
+          document.getElementById("maps-container").style.display = "none";
+        }
+      };
+      const markerToTextSize = {
+        20: 12,
+        40: 18,
+        60: 22,
+      };
+
+      let emojiNumberMap = {};
+      await fetch("emojiToNumMap.json")
+        .then((response) => response.json())
+        .then((data) => {
+          emojiNumberMap = data;
+        });
+
+      function generateMapsHTML(mapData) {
+        let markersHTML = "";
+        let mapUrl = `https://api.mapbox.com/styles/v1/pinenlime/${mapData.mapStyle.replace("mapbox://styles/pinenlime/", "")}/static/${mapData.mapCenter[0]},${mapData.mapCenter[1]},${mapData.mapZoom},0/500x500@2x?access_token=pk.eyJ1IjoicGluZW5saW1lIiwiYSI6ImNrN3N6eTQ0bzByNmgzbXBsdmlwY25reDIifQ.QZROImVZfGk44ZIJLlYXQg&logo=false&attribution=false`;
+
+        mapData.markers.forEach((marker) => {
+          markersHTML += `<div class="marker-cont" style="left: ${marker.markerCoordinates[0] - 25}px; top: ${marker.markerCoordinates[1] - 25}px">
+    <img class="marker" height="${marker.markerSize}" src="https://d1wxxs914x4wga.cloudfront.net/emoji/emoji-${emojiNumberMap[marker.markerEmoji]}.png" />
+    <div class="label"><img height="${markerToTextSize[marker.markerSize]}" src=${textToImage(marker.markerLabel, "100px", "Homemade Apple")}></div>
+  </div>`;
+        });
+
+        return `<div class="map-container">
+  <img height="500" width="500" src="${mapUrl}" alt="" id="mapImage" />
+  ${
+    mapData.message
+      ? `<div class="message-box-cont">
+    <div id="message-box" class="message-box">${mapData.message}</div>
+  </div>`
+      : ""
+  }${markersHTML}
+</div>
+`;
+      }
+
+      function textToImage(text, fontSize = "20px", fontFace = "Arial") {
+        // Create a canvas element
+        var canvas = document.createElement("canvas");
+
+        // Get the 2D drawing context
+        var context = canvas.getContext("2d");
+
+        // Set the font properties
+        context.font = "bold " + fontSize + " " + fontFace;
+
+        // Get the text metrics
+        var metrics = context.measureText(text);
+        var textWidth = metrics.width;
+
+        // Estimate the text height based on the font size
+        var textHeight = parseInt(fontSize, 10);
+
+        // Set the canvas width and height based on the text dimensions
+        canvas.width = textWidth + textHeight / 1.5; // Adding some padding
+        canvas.height = textHeight * 2; // Adding some padding
+        context.font = "bold " + fontSize + " " + fontFace;
+
+        // Clear the canvas
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Set the text color
+        context.fillStyle = "black";
+
+        // Set the outline properties
+        context.strokeStyle = "white"; // Outline color
+        context.lineWidth = 15; // Outline width
+
+        // Calculate the position to center the text
+        var textX = (canvas.width - textWidth + textHeight / 2) / 2;
+        var textY = (canvas.height + textHeight) / 2.5; // Aligning roughly at the vertical center
+
+        // Draw the text outline
+        context.strokeText(text, textX, textY);
+
+        // Draw the text onto the canvas
+        context.fillText(text, textX, textY);
+
+        // Get the data URL of the canvas as an image
+        var imageUrl = canvas.toDataURL("image/png");
+        return imageUrl;
+      }
+    </script>
+  </body>
+</html>

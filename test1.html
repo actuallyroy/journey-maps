@@ -1,0 +1,1601 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+    <script type="text/javascript">
+      (function (c, l, a, r, i, t, y) {
+        c[a] =
+          c[a] ||
+          function () {
+            (c[a].q = c[a].q || []).push(arguments);
+          };
+        t = l.createElement(r);
+        t.async = 1;
+        t.src = "https://www.clarity.ms/tag/" + i;
+        y = l.getElementsByTagName(r)[0];
+        y.parentNode.insertBefore(t, y);
+      })(window, document, "clarity", "script", "j681uvc2kt");
+    </script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+    <script src="https://map-preview-images.s3.amazonaws.com/Fonts/ishans_html2canvas.js"></script>
+    <link rel="stylesheet" href="https://d1tsukz865bhnw.cloudfront.net/scripts/MemoryMap/MemoryMap.css" />
+
+    <style>
+      emoji-picker {
+        --emoji-font-family: "Noto Color Emoji", sans-serif;
+      }
+
+      body {
+        font-family: "Futura-LT-W01-Book";
+        overflow: hidden;
+      }
+      .b {
+        position: absolute;
+        z-index: 1;
+        background: white;
+        padding: 7px;
+        border-radius: 4px;
+        font-size: 15px;
+        color: #333;
+        right: 10px;
+        top: 460px;
+        box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+      }
+      .b:hover {
+        background: #f2f2f2;
+      }
+
+      .main-container {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .mapboxgl-ctrl-logo {
+        display: none !important;
+      }
+
+      #map {
+        height: 500px;
+        aspect-ratio: 1/1;
+      }
+
+      #title {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 100;
+        border: none;
+        outline: none;
+        border-radius: 5px;
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+        font-family: "Futura-LT-W01-Book", cursive;
+        text-align: center;
+        padding: 0;
+        top: 513px;
+        left: calc(50% - 66px);
+        width: 130px;
+      }
+
+      .markers-container img {
+        height: 30px;
+        aspect-ratio: 1/1;
+        padding: 5px;
+        margin: 5px;
+        cursor: pointer;
+        border-radius: 5px;
+      }
+
+      #map {
+        border: 1px solid black;
+        transform-origin: left top;
+      }
+
+      .mapboxgl-marker {
+        cursor: pointer;
+      }
+
+      .active {
+        background-color: #cacaca;
+      }
+
+      .bi-plus-lg {
+        z-index: 99;
+        position: absolute;
+        top: calc(50% - 10px);
+        left: calc(50% - 10px);
+        font-size: 20px;
+        color: #ffffff;
+        filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.3));
+        pointer-events: none;
+      }
+
+      .warn-popup {
+        display: none;
+        position: absolute;
+        bottom: 20px;
+        z-index: 100;
+        width: fit-content;
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.16);
+        border-radius: 10px;
+        background-color: rgb(255 255 255);
+        padding: 20px;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        color: goldenrod;
+        transition: all 0.5s ease-in-out;
+      }
+
+      .warn-popup button {
+        background-color: goldenrod;
+        border: none;
+        border-radius: 5px;
+        padding: 5px 10px;
+        color: white;
+        font-weight: bold;
+        font-size: 16px;
+        cursor: pointer;
+      }
+
+      :root {
+        --outline: #fff;
+      }
+
+      .label {
+        font-family: "Homemade Apple";
+        font-weight: bold;
+        text-align: center;
+        text-shadow: -1px 1px 0 var(--outline), 1px 1px 0 var(--outline), 1px -1px 0 var(--outline), -1px -1px 0 var(--outline);
+      }
+      .size-cont {
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-around;
+      }
+      .map-style-cont {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        height: fit-content;
+      }
+      .map-style {
+        border-radius: 50px;
+        margin: 2px;
+        cursor: pointer;
+        transition: all 150ms ease-in-out;
+        border: 2px solid transparent;
+        width: fit-content;
+        height: fit-content;
+      }
+      .active-style {
+        opacity: 1;
+        border: 2px solid rgb(0, 0, 0);
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.412);
+      }
+      .map-style:hover {
+        opacity: 0.6;
+      }
+      .map-style:active {
+        opacity: 1;
+      }
+      .map-style img {
+        height: 50px;
+      }
+      .frame-img {
+        position: absolute;
+        z-index: 1;
+        filter: drop-shadow(4px 4px 3px rgba(0, 0, 0, 0.56));
+      }
+      .preview-img {
+        transform-origin: center;
+        transform: scale(0.84);
+      }
+      .window-1 {
+        /* display: none; */
+      }
+      .window-2 {
+        display: none;
+        transition: all 150ms ease-in-out;
+      }
+      input[type="radio"],
+      label {
+        cursor: pointer;
+      }
+      .bi-check-circle-fill {
+        color: green;
+      }
+      .bi-x-circle-fill {
+        color: red;
+      }
+      .ok-cancel {
+        display: none;
+        justify-content: space-between;
+        font-size: 50px;
+        position: relative;
+        width: 120px;
+        translate: 58vw 277px;
+        z-index: 10;
+      }
+      .ok-cancel div {
+        background-color: white;
+        height: fit-content;
+        width: fit-content;
+        border-radius: 50px;
+      }
+      .t {
+        text-align: center;
+      }
+      #title-cont {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 10px;
+        background-color: honeydew;
+        padding: 2px;
+      }
+      #title-cont span {
+        margin-right: 10px;
+      }
+      #title-cont input {
+        width: 300px;
+      }
+      .btns-cont {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+      }
+      .btns-cont button {
+        margin: 0 10px;
+        padding: 5px 5px 5px 50px;
+        display: flex;
+        width: 150px;
+        align-items: center;
+        justify-content: space-between;
+        transition: all 150ms ease-in-out;
+        border: 1px solid rgba(0, 0, 0, 0);
+      }
+
+      .btns-cont button i {
+        font-size: 20px;
+      }
+      .btns-cont button:nth-child(2) {
+        padding: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background-color: #ed071a;
+        color: white;
+      }
+      .btns-cont button:nth-child(2):hover {
+        background-color: #d89197;
+        border: 1px solid transparent;
+      }
+      .btns-cont button:hover {
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.16);
+        border: 1px solid black;
+      }
+      .preview {
+        margin-bottom: 15px;
+      }
+      .markers-list-wrapper {
+        width: 180px;
+        height: 550px;
+        overflow-y: scroll;
+      }
+      .markers-list-wrapper::-webkit-scrollbar-track {
+        border-radius: 10px;
+        background-color: white;
+      }
+      .markers-list-wrapper::-webkit-scrollbar-track:hover {
+        -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.15);
+        border-radius: 10px;
+        background-color: #f5f5f5;
+      }
+
+      .markers-list-wrapper::-webkit-scrollbar {
+        width: 12px;
+        background-color: #f5f5f5;
+      }
+
+      .markers-list-wrapper::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        background-color: #e5e5e5;
+      }
+      .markers-list-wrapper::-webkit-scrollbar-thumb:hover {
+        border-radius: 10px;
+        background-color: #b9b9b9;
+      }
+      .ml-ms {
+        display: flex;
+        gap: 10px;
+      }
+
+      .marker-list-item {
+        background-color: rgb(245, 245, 245);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 5px;
+        cursor: pointer;
+      }
+
+      .marker-label.m {
+        font-family: "Noto Color Emoji";
+      }
+      .marker-label.l {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+      }
+
+      .marker-list-item:hover {
+        background-color: rgb(235, 235, 235);
+      }
+
+      .bi-x-lg:hover {
+        color: red;
+      }
+
+      @media (max-width: 321px) {
+        body {
+          height: 1355px;
+        }
+        emoji-picker {
+          width: 100vw;
+          height: 200px;
+          --emoji-size: 20px;
+        }
+        .map-cont {
+          margin-top: 100px;
+          margin-bottom: 20px;
+          height: calc(500px * 0.64);
+        }
+        .main-container {
+          flex-direction: column !important;
+        }
+        #title-cont {
+          position: relative;
+          z-index: 1;
+          translate: 0 -185px;
+        }
+        .frame-img {
+          width: 100vw;
+          height: 100vw;
+          z-index: 1;
+        }
+        .preview-img {
+          width: 100vw;
+          height: 100vw;
+          transform: scale(0.83);
+        }
+        .bi-plus-lg {
+          display: none;
+        }
+        .map-style img {
+          height: 50px;
+        }
+        #map {
+          transform: scale(0.64);
+        }
+        .form-check.form-switch {
+          margin-left: 10px;
+        }
+        .ml-ms {
+          flex-direction: column;
+          margin-top: 30px;
+        }
+        .markers-list-wrapper {
+          width: 100vw;
+        }
+        #markers-list-cont {
+          max-height: 130px;
+          overflow: scroll;
+        }
+      }
+    </style>
+    <style>
+      .label-1 {
+        position: relative;
+        display: flex;
+        align-items: center;
+        top: -3px;
+      }
+      .label-1 img {
+        object-fit: contain;
+      }
+
+      .marker-cont {
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 50px;
+      }
+
+      .marker {
+        position: relative;
+        z-index: 99;
+      }
+
+      .message-box-cont {
+        position: absolute;
+        top: 450px;
+        left: 146px;
+        padding: 5px;
+        background-color: white;
+      }
+
+      .message-box {
+        background: white;
+        padding-bottom: 6px;
+        padding-top: 2px;
+        width: 200px;
+        text-align: center;
+        font-size: small;
+        border: 2px solid black;
+        color: black;
+        font-family: Futura-LT-W01-Book;
+      }
+
+      .map-container {
+        position: absolute;
+        padding: 10px;
+        width: fit-content;
+        background-color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <input id="title" type="text" maxlength="15" />
+    <div class="window-1">
+      <div class="main-container">
+        <div>
+          <div id="emoji-picker-cont"></div>
+          <div id="emoji-size-cont" class="size-cont">
+            <span>Marker Size:</span>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="markerSize" id="sizeSmall" value="20" />
+              <label class="form-check-label" for="sizeSmall"> Small </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="markerSize" id="sizeMedium" value="30" checked />
+              <label class="form-check-label" for="sizeMedium"> Medium </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="markerSize" id="sizeLarge" value="40" />
+              <label class="form-check-label" for="sizeLarge"> Large </label>
+            </div>
+          </div>
+        </div>
+        <div class="map-cont">
+          <div id="map">
+            <i class="bi bi-plus-lg"></i>
+            <i class="bi bi-lock-fill b" id="lock-btn"></i>
+            <div class="ok-cancel">
+              <div>
+                <i id="cancelBtn" class="bi bi-x-circle-fill"></i>
+              </div>
+              <div>
+                <i id="okBtn" class="bi bi-check-circle-fill"></i>
+              </div>
+            </div>
+          </div>
+          <div id="title-cont"><span>Title: </span><input id="titleInput" type="text" /></div>
+        </div>
+        <div class="ml-ms">
+          <div class="markers-list-wrapper">
+            <div><b> Your markers: </b></div>
+            <div id="markers-list-cont">No markers yet.</div>
+          </div>
+          <div>
+            <div class="t"><b>Map Styles</b></div>
+            <div class="map-style-cont" id="map-style-cont">
+              <!-- <div class="map-style">
+                <img src="https://static.wixstatic.com/media/c935e2_1c5e0ae6971441509ac0a3ae1f3f6dec~mv2.png" alt="" srcset="">
+              </div> -->
+            </div>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="mapLabelSwitch" checked />
+              <label class="form-check-label" for="mapLabelSwitch">Map Label</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="window-2">
+      <div class="main-container">
+        <div style="margin: 50px 0 0 20px; display: flex; gap: 100px">
+          <div>
+            <label for="">Frame Size: </label><br />
+            <!-- <input type="radio" name="frameSize" id="frameSize4x4" checked value="4x4" />
+            <label for="frameSize4x4">4x4</label><br />
+            <input type="radio" name="frameSize" id="frameSize6x6" disabled value="6x6" />
+            <label for="frameSize6x6">6x6</label><br /> -->
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="frameSize" id="frameSize8x8" value="8x8" checked />
+              <label class="form-check-label" for="colorBrown"> 8x8 </label>
+            </div>
+          </div>
+          <div id="frameColorSelector">
+            <label for="">Frame Color: </label><br />
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="frameColor" id="colorBrown" value="Dark Brown" checked />
+              <label class="form-check-label" for="colorBrown"> Brown </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="frameColor" id="colorNatural" value="Natural" />
+              <label class="form-check-label" for="colorNatural"> Natural </label>
+            </div>
+          </div>
+        </div>
+        <div class="preview">
+          <img class="frame-img" id="frame-img" width="500" height="500" alt="" srcset="" />
+          <img class="preview-img" id="preview-img" src="https://static.wixstatic.com/media/9fba21_0614536308ce452f9cec612b4296e429~mv2.png" height="500" width="500" alt="" srcset="" />
+          <div style="text-align: center; font-size: 10px; line-height: 1">The watermark is only for the preview.<br />Your final product will NOT have a watermark.</div>
+        </div>
+        <!-- <div class="preview-1">
+          <img class="frame-img" width="500" height="500" src="https://static.wixstatic.com/media/33f547_7266b14f363e4f70adc4c6a185dfe114~mv2.png" alt="" srcset="" />
+          <img class="preview-img" id="preview-img-1" src="https://static.vecteezy.com/system/resources/previews/004/688/190/large_2x/a-hand-gesture-showing-an-index-finger-pointing-up-meaning-one-or-exclamation-collection-of-the-sign-language-using-hand-gestures-free-photo.jpg" height="380" width="380" alt="" srcset="" />
+        </div> -->
+      </div>
+    </div>
+    <div class="btns-cont">
+      <button id="nextBtn">Next<i class="bi bi-arrow-right-short"></i></button>
+      <button id="addToCartBtn">Add to Cart</button>
+    </div>
+
+    <div class="warn-popup">
+      <div class="warn-popup-content">
+        <span id="warn-message">😧Oh no!! some of your markers are going out of the visible area!!</span>
+        <button id="warn-ok-btn">OK</button>
+      </div>
+    </div>
+    <div style="height: 0; width: 0; position: absolute; top: 0; left: 0; z-index: -1" id="mapsContainer">
+      <div class="map-container" id="mapImage"></div>
+      <div style="height: 520px; width: 520px; background: white; z-index: 99; position: absolute"></div>
+    </div>
+    <script type="module">
+      var points = [];
+      var currentPoint = [];
+      var markers = [];
+      var currentMarker;
+      var currentMarkerImage;
+      var currentMarkerEmoji;
+      var cursorImage;
+      var markerSize = 30;
+      var isPhone = false;
+      var dataChanged = false;
+      var frameColor = "Dark Brown";
+      var frameSize = "8x8";
+      var lockMapMove = true;
+      var markerObjects = [];
+      var currentLabelFont = "Beth Ellen";
+
+      const markerToTextSize = {
+        20: 12,
+        30: 15,
+        40: 18,
+      };
+
+      async function hasIDB() {
+        if (typeof indexedDB === "undefined") {
+          return false;
+        }
+
+        try {
+          const idbFailed = await new Promise((resolve) => {
+            const db = indexedDB.open("test-idb");
+            db.onerror = () => resolve(true);
+            db.onsuccess = () => {
+              indexedDB.deleteDatabase("test-idb");
+              resolve(false);
+            };
+          });
+          if (idbFailed) {
+            return false;
+          }
+        } catch (e) {
+          return false;
+        }
+        return true;
+      }
+
+      async function polyfillIDB() {
+        await import("https://d1wxxs914x4wga.cloudfront.net/emoji/fakeIndexedDB.js");
+        // Can't override the indexedDB global, but we can monkey-patch it
+        for (const func of ["open", "deleteDatabase"]) {
+          indexedDB[func] = FakeIndexedDB[func].bind(FakeIndexedDB);
+        }
+        for (const func of ["bound", "lowerBound", "upperBound", "only"]) {
+          IDBKeyRange[func] = FDBKeyRange[func].bind(FDBKeyRange);
+        }
+      }
+
+      if (!(await hasIDB())) {
+        await polyfillIDB();
+      }
+
+      const { Picker } = await import("https://unpkg.com/emoji-picker-element@1");
+
+      const emojiPicker = new Picker({
+        dataSource: "https://cdn.jsdelivr.net/npm/emoji-picker-element-data@%5E1/en/emojibase/data.json",
+      });
+
+      emojiPicker.classList.add("light");
+
+      const frameURLs = {
+        "Dark Brown": "https://static.wixstatic.com/media/9fba21_24db682ca706494b8072a122e128fc89~mv2.png",
+        Natural: "https://static.wixstatic.com/media/9fba21_6cd730decf5c49fab0b42cc9ebef495c~mv2.png",
+      };
+
+      preloadImage(Object.values(frameURLs));
+
+      const defaultMapStyle = {
+        labelled: "mapbox://styles/pinenlime/ckknu6rsw62dq17nubbhdk7zg",
+        unlabelled: "mapbox://styles/pinenlime/ckqzddkfy3p9l18p7toi6zq4r",
+      };
+
+      const labelInput = document.getElementById("title");
+      const warnMessage = document.getElementById("warn-message");
+      const warnPopup = document.querySelector(".warn-popup");
+      // const emojiPicker = document.querySelector("emoji-picker");
+      const mapLabelSwitch = document.getElementById("mapLabelSwitch");
+      const doneBtn = document.getElementById("doneBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      const okBtn = document.getElementById("okBtn");
+      const cancelBtn = document.getElementById("cancelBtn");
+      const mapGenerator = document.getElementById("mapGenerator");
+      const mapContainer = document.querySelector(".map-container");
+      const titleInput = document.getElementById("titleInput");
+      const addToCartBtn = document.getElementById("addToCartBtn");
+      const frameColorSelector = document.getElementById("frameColorSelector");
+      const previewImg = document.getElementById("preview-img");
+      const frameImg = document.getElementById("frame-img");
+      const lockBtn = document.getElementById("lock-btn");
+      const emojiPickerCont = document.getElementById("emoji-picker-cont");
+      const markersListCont = document.getElementById("markers-list-cont");
+      const warnOkBtn = document.getElementById("warn-ok-btn");
+
+      emojiPickerCont.appendChild(emojiPicker);
+      frameImg.src = frameURLs["Dark Brown"];
+
+      const accessToken = "pk.eyJ1IjoicGluZW5saW1lIiwiYSI6ImNrN3N6eTQ0bzByNmgzbXBsdmlwY25reDIifQ.QZROImVZfGk44ZIJLlYXQg";
+      const zoomRate = 0.2;
+
+      const mapStyleFonts = {
+        Rust: "Source Sans Pro SemiBold",
+        Breezy: "DINPro-Medium",
+        Evening: "DINPro-Medium",
+        OriginalBlue: "DINPro-Medium",
+        Night: "DINPro-Medium",
+        Blush: "DINPro-Medium",
+        Ruby: "Beth Ellen",
+        Raven: "Alegreya SC",
+        Moss: "Source Sans Pro SemiBold",
+        Sky: "DINPro-Medium",
+        Romeo: "Beth Ellen",
+        Vanilla: "Source Sans Pro SemiBold",
+        Garden: "Bree Serif Regular",
+        Cloud: "Overpass",
+        Sailor: "Roboto Mono",
+        BluePrint: "DIN Offc Pro Black",
+        Clay: "Frank Ruhl Libre",
+        Sherlock: "Roboto Mono",
+        Forest: "Overpass",
+        Monochrome: "DINPro-Medium",
+        Game: "Roboto Mono",
+        Classic: "DINPro-Medium",
+        Strawberry: "DINPro-Medium",
+        ForgetMeNot: "Beth Ellen",
+        Daffodil: "Beth Ellen",
+      };
+
+      const fontsToLoad = [
+        {
+          font_name: "Source Sans Pro SemiBold",
+          url: "url(https://d1wxxs914x4wga.cloudfront.net/Fonts/SourceSansPro-Semibold.otf)",
+        },
+        {
+          font_name: "DINPro-Medium",
+          url: "url(https://d1wxxs914x4wga.cloudfront.net/Fonts/DINPro-Medium_13936.ttf)",
+        },
+        {
+          font_name: "Beth Ellen",
+          url: "url(https://fonts.gstatic.com/s/bethellen/v17/WwkbxPW2BE-3rb_JNT-qIIcoVQ.woff2)",
+        },
+        {
+          font_name: "Alegreya SC",
+          url: "url(https://fonts.gstatic.com/s/alegreyasc/v14/taiOGmRtCJ62-O0HhNEa-a6o.ttf)",
+        },
+        {
+          font_name: "Bree Serif Regular",
+          url: "url(https://fonts.gstatic.com/s/breeserif/v17/4UaHrEJCrhhnVA3DgluA96rp5w.woff2)",
+        },
+        {
+          font_name: "Overpass",
+          url: "url(https://fonts.gstatic.com/s/overpass/v13/qFda35WCmI96Ajtm83upeyoaX6QPnlo6_PPbPpqK.woff2)",
+        },
+        {
+          font_name: "Roboto Mono",
+          url: "url(https://fonts.gstatic.com/s/robotomono/v12/L0x5DF4xlVMF-BfR8bXMIjhLq38.woff2)",
+        },
+        {
+          font_name: "DIN Offc Pro Black",
+          url: "url(https://d1wxxs914x4wga.cloudfront.net/Fonts/DINOffcPro-Black.ttf)",
+        },
+        {
+          font_name: "Frank Ruhl Libre",
+          url: "url(https://fonts.gstatic.com/s/frankruhllibre/v20/j8_96_fAw7jrcalD7oKYNX0QfAnPcbzNEEB7OoicBw4iZmqXNRU.woff2)",
+        },
+        {
+          font_name: "Noto Color Emoji",
+          url: "url(https://fonts.gstatic.com/s/notocoloremoji/v25/Yq6P-KqIXTD0t4D9z1ESnKM3-HpFabsE4tq3luCC7p-aXxcn.0.woff2)",
+        },
+        {
+          font_name: "Noto Color Emoji",
+          url: "url(https://fonts.gstatic.com/s/notocoloremoji/v25/Yq6P-KqIXTD0t4D9z1ESnKM3-HpFabsE4tq3luCC7p-aXxcn.1.woff2)",
+        },
+        {
+          font_name: "Noto Color Emoji",
+          url: "url(https://fonts.gstatic.com/s/notocoloremoji/v25/Yq6P-KqIXTD0t4D9z1ESnKM3-HpFabsE4tq3luCC7p-aXxcn.2.woff2)",
+        },
+        {
+          font_name: "Noto Color Emoji",
+          url: "url(https://fonts.gstatic.com/s/notocoloremoji/v25/Yq6P-KqIXTD0t4D9z1ESnKM3-HpFabsE4tq3luCC7p-aXxcn.3.woff2)",
+        },
+        {
+          font_name: "Noto Color Emoji",
+          url: "url(https://fonts.gstatic.com/s/notocoloremoji/v25/Yq6P-KqIXTD0t4D9z1ESnKM3-HpFabsE4tq3luCC7p-aXxcn.4.woff2)",
+        },
+        {
+          font_name: "Noto Color Emoji",
+          url: "url(https://fonts.gstatic.com/s/notocoloremoji/v25/Yq6P-KqIXTD0t4D9z1ESnKM3-HpFabsE4tq3luCC7p-aXxcn.5.woff2)",
+        },
+        {
+          font_name: "Noto Color Emoji",
+          url: "url(https://fonts.gstatic.com/s/notocoloremoji/v25/Yq6P-KqIXTD0t4D9z1ESnKM3-HpFabsE4tq3luCC7p-aXxcn.6.woff2)",
+        },
+        {
+          font_name: "Noto Color Emoji",
+          url: "url(https://fonts.gstatic.com/s/notocoloremoji/v25/Yq6P-KqIXTD0t4D9z1ESnKM3-HpFabsE4tq3luCC7p-aXxcn.7.woff2)",
+        },
+        {
+          font_name: "Noto Color Emoji",
+          url: "url(https://fonts.gstatic.com/s/notocoloremoji/v25/Yq6P-KqIXTD0t4D9z1ESnKM3-HpFabsE4tq3luCC7p-aXxcn.8.woff2)",
+        },
+        {
+          font_name: "Noto Color Emoji",
+          url: "url(https://fonts.gstatic.com/s/notocoloremoji/v25/Yq6P-KqIXTD0t4D9z1ESnKM3-HpFabsE4tq3luCC7p-aXxcn.9.woff2)",
+        },
+      ];
+
+      await loadFonts(fontsToLoad);
+
+      var mapData = {
+        mapStyle: defaultMapStyle.labelled,
+        mapZoom: 15,
+        mapBearing: 0,
+        mapCenter: [55.14, 25.069],
+        markers: [],
+      };
+
+      var productData = {};
+
+      mapboxgl.accessToken = accessToken;
+      const map = new mapboxgl.Map({
+        container: "map",
+        style: mapData.mapStyle,
+        center: mapData.mapCenter,
+        zoom: mapData.mapZoom,
+        attributionControl: false,
+        crossSourceCollisions: false,
+        pitchWithRotate: false,
+        touchPitch: false,
+        scrollZoom: 0.5,
+      });
+      console.log(map.zoomOut);
+      map.zoomIn = function (options, eventData) {
+        this.zoomTo(this.getZoom() + zoomRate, options, eventData);
+        return this;
+      };
+
+      map.zoomOut = function zoomOut(options, eventData) {
+        this.zoomTo(this.getZoom() - zoomRate, options, eventData);
+        return this;
+      };
+
+      map.scrollZoom.disable();
+      map.dragPan.disable();
+      map.doubleClickZoom.disable();
+
+      map.addControl(
+        new mapboxgl.NavigationControl({
+          visualizePitch: false,
+        })
+      );
+
+      let tempMarker = new mapboxgl.Marker(document.createElement("div")).setLngLat(map.getCenter());
+      tempMarker.getElement().style.zIndex = 99;
+
+      map.on("load", () => {
+        let tempWidth = getComputedStyle(document.body).width;
+        tempWidth = parseInt(tempWidth.substring(0, tempWidth.length - 2));
+        if (tempWidth < 600) {
+          isPhone = true;
+        }
+      });
+
+      // // If mapData exists in local storage then loadState
+      // if (sessionStorage.getItem("mapData")) {
+      //   mapData = JSON.parse(sessionStorage.getItem("mapData"));
+      //   setTimeout(() => {
+      //     loadState(mapData);
+      //     lockMapMove = false;
+      //   }, 500);
+      // } else {
+      //   lockMapMove = false;
+      // }
+
+      // {
+      //   Title: "ForgetMeNot",
+      //   ID: "0107bc23-214e-4e63-a6ac-ce12ff111111",
+      //   Owner: "c2915199-3d7d-45ac-9719-c8ed474da701",
+      //   Created Date: "2021-05-15T18:55:34Z",
+      //   Updated Date: "2021-05-15T18:55:34Z",
+      //   image: "https://static.wixstatic.com/media/c935e2_1c5e0ae6971441509ac0a3ae1f3f6dec~mv2.png",
+      //   styleId: "mapbox://styles/pinenlime/cl0v5yn5x009k14mdgtxynxpq",
+      //   styleIdLabelled: "mapbox://styles/pinenlime/ckxj442gwk1a415o5qlzx6jhw",
+      //   coMap: [ ],
+      //   MapGalleryData-1: [ ],
+      //   border: "black",
+      //   borderDouble: "",
+      //   doubleMap: true
+      // }
+
+      fetch("https://d1wxxs914x4wga.cloudfront.net/MapDesigns/design.json")
+        .then((response) => response.json())
+        .then((mapStyles) => {
+          let mapStyleCont = document.getElementById("map-style-cont");
+          mapStyles.forEach((mapStyle) => {
+            let mapStyleElem = document.createElement("div");
+            mapStyleElem.classList.add("map-style");
+            mapStyleElem.title = mapStyle.Title;
+            if (mapStyle.styleId == defaultMapStyle.unlabelled) mapStyleElem.classList.add("active-style");
+            mapStyleElem.setAttribute("styleID", mapStyle.styleId);
+            mapStyleElem.setAttribute("styleIDlabelled", mapStyle.styleIdLabelled);
+            mapStyleElem.innerHTML = `<img src="${mapStyle.image}" alt="" srcset="">`;
+            mapStyleElem.onclick = () => {
+              let activeStyle = document.querySelector(".active-style");
+              if (activeStyle) activeStyle.classList.remove("active-style");
+              mapStyleElem.classList.add("active-style");
+              var style = mapStyle.styleId;
+              currentLabelFont = mapStyleFonts[mapStyle.Title];
+              let allLabels = document.querySelectorAll(".label");
+              allLabels.forEach((label) => {
+                label.style.fontFamily = currentLabelFont;
+              });
+              if (mapLabelSwitch.checked) style = mapStyle.styleIdLabelled;
+              map.setStyle(style);
+              mapData.mapStyle = style;
+              dataChanged = true;
+              saveState();
+            };
+            mapStyleCont.appendChild(mapStyleElem);
+          });
+        });
+
+      mapLabelSwitch.onclick = () => {
+        const activeStyle = document.querySelector(".active-style");
+
+        let style;
+        if (activeStyle) {
+          if (mapLabelSwitch.checked) {
+            style = activeStyle.getAttribute("styleIDlabelled");
+          } else {
+            style = activeStyle.getAttribute("styleID");
+          }
+        } else {
+          if (mapLabelSwitch.checked) style = defaultMapStyle.labelled;
+          else style = defaultMapStyle.unlabelled;
+        }
+        map.setStyle(style);
+        mapData.mapStyle = style;
+        dataChanged = true;
+        saveState();
+      };
+
+      let cStyle = document.createElement("style");
+      cStyle.innerHTML = `
+            .active-emo{
+              background-color: #d9d9d9;
+            }
+            .favorites{
+              display: none;
+            }
+            .body{
+              transition: all 0.1s ease-in-out;
+            }`;
+      let interval = setInterval(() => {
+        if (emojiPicker.shadowRoot) {
+          clearInterval(interval);
+          emojiPicker.shadowRoot.appendChild(cStyle);
+        }
+      }, 100);
+
+      document.getElementById("emoji-size-cont").onclick = (e) => {
+        let t = e.target.value;
+
+        if (t) markerSize = t;
+        try {
+          tempMarker.getElement().querySelector(".marker").style.height = markerSize + "px";
+        } catch (error) {}
+        cursorImage = emojiToImg(currentMarkerEmoji, markerSize);
+        document.querySelector(".mapboxgl-canvas-container.mapboxgl-interactive").style.cursor = `url(${cursorImage}) ${(markerSize * 12) / 16} ${(markerSize * 9) / 16 + (markerToTextSize[markerSize] + 3) / 2}, grab`;
+      };
+
+      emojiPicker.addEventListener("emoji-click", (event) => {
+        let activeEmojiElem = emojiPicker.shadowRoot.querySelectorAll(".active-emo");
+        if (activeEmojiElem[1]) activeEmojiElem[1].classList.remove("active-emo");
+        if (activeEmojiElem[0]) activeEmojiElem[0].classList.remove("active-emo");
+        let clickedEmoji1 = emojiPicker.shadowRoot.getElementById("emo-" + event.detail.emoji.unicode);
+        let clickedEmoji2 = emojiPicker.shadowRoot.getElementById("fav-" + event.detail.emoji.unicode);
+        if (clickedEmoji1) clickedEmoji1.classList.add("active-emo");
+        if (clickedEmoji2) clickedEmoji2.classList.add("active-emo");
+        currentMarkerImage = emojiToImg(event.detail.unicode, 85);
+        currentMarkerEmoji = event.detail.unicode;
+        cursorImage = emojiToImg(event.detail.unicode, markerSize);
+        unlockMap();
+        document.querySelector(".mapboxgl-canvas-container.mapboxgl-interactive").style.cursor = `url(${cursorImage}) ${(markerSize * 12) / 16} ${(markerSize * 9) / 16 + (markerToTextSize[markerSize] + 3) / 2}, grab`;
+        if (isPhone) {
+          let divElem = document.createElement("div");
+          divElem.style.display = "flex";
+          divElem.style.flexDirection = "column";
+          divElem.style.alignItems = "center";
+          var el = new Image();
+          el.height = markerSize;
+          el.className = "marker";
+          el.src = currentMarkerImage;
+          let label = document.createElement("div");
+          label.classList.add("label");
+          label.innerHTML = ".";
+          label.style.fontSize = markerToTextSize[markerSize];
+          divElem.appendChild(el);
+          divElem.appendChild(label);
+          tempMarker.getElement().innerHTML = "";
+          tempMarker.getElement().appendChild(divElem);
+          tempMarker.addTo(map);
+
+          document.querySelector(".ok-cancel").style.display = "flex";
+        }
+      });
+
+      cancelBtn.onclick = () => {
+        tempMarker.remove();
+        document.querySelector(".ok-cancel").style.display = "none";
+        document.querySelector(".mapboxgl-canvas-container.mapboxgl-interactive").style.cursor = "grab";
+        lockMap();
+      };
+
+      okBtn.onclick = () => {
+        let marker = new mapboxgl.Marker(tempMarker.getElement().querySelector("div"), {
+          draggable: true,
+        })
+          .setLngLat(map.getCenter())
+          .addTo(map);
+
+        marker.index = markers.length;
+        currentPoint = Object.values(map.getCenter());
+        points.push(currentPoint);
+        currentMarker = marker;
+
+        // Attach click event listener to remove the marker when clicked
+        marker.getElement().addEventListener("click", () => {
+          // points.splice(marker.index, 1);
+          // markers.splice(marker.index, 1);
+          // markerObjects.splice(marker.index, 1)
+          let i = marker.index;
+          points[i] = null;
+          markers[i] = null;
+          markerObjects[i] = null;
+          marker.remove();
+          dataChanged = true;
+          mapData.markers = cleanArray(markers);
+          saveState();
+          setMarkersList(markers);
+        });
+        marker.on("dragend", (e) => {
+          const lngLat = marker.getLngLat();
+          markers[marker.index].markerLocation = Object.values(lngLat);
+          dataChanged = true;
+          setMarkersList(markers);
+          saveState();
+        });
+
+        labelInput.style.display = "block";
+        labelInput.value = "";
+        labelInput.focus();
+        document.querySelector(".mapboxgl-canvas-container.mapboxgl-interactive").style.cursor = "grab";
+        document.querySelector(".ok-cancel").style.display = "none";
+        dataChanged = true;
+        saveState();
+      };
+
+      map.on("click", (e) => {
+        if (currentMarkerImage && !isPhone) {
+          const lonLat = Object.values(e.lngLat);
+          currentPoint = lonLat;
+          points.push(currentPoint);
+          let divElem = document.createElement("div");
+          divElem.style.display = "flex";
+          divElem.style.flexDirection = "column";
+          divElem.style.alignItems = "center";
+          var el = new Image();
+          el.height = markerSize;
+          el.className = "marker";
+          el.src = currentMarkerImage;
+          let label = document.createElement("div");
+          label.classList.add("label");
+          label.innerHTML = ".";
+          label.style.fontSize = markerToTextSize[markerSize];
+          divElem.appendChild(el);
+          divElem.appendChild(label);
+
+          let marker = new mapboxgl.Marker(divElem, {
+            draggable: true,
+          })
+            .setLngLat(currentPoint)
+            .addTo(map);
+
+          marker.index = markers.length;
+
+          currentMarker = marker;
+
+          // Attach click event listener to remove the marker when clicked
+          marker.getElement().addEventListener("click", () => {
+            // points.splice(marker.index, 1);
+            // markers.splice(marker.index, 1);
+            // markerObjects.splice(marker.index, 1)
+            let i = marker.index;
+            console.log(i, markerObjects[i]);
+            points[i] = null;
+            markers[i] = null;
+            markerObjects[i] = null;
+            marker.remove();
+            dataChanged = true;
+            mapData.markers = cleanArray(markers);
+            saveState();
+            setMarkersList(markers);
+          });
+          marker.on("dragend", (e) => {
+            const lngLat = marker.getLngLat();
+            markers[marker.index].markerLocation = Object.values(lngLat);
+            dataChanged = true;
+            setMarkersList(markers);
+            saveState();
+          });
+          document.body.style.cursor = "auto";
+          document.querySelector(".mapboxgl-canvas-container.mapboxgl-interactive").style.cursor = "auto";
+          dataChanged = true;
+          saveState();
+        }
+      });
+
+      map.on("move", (e) => {
+        tempMarker.setLngLat(map.getCenter());
+      });
+
+      map.on("moveend", (e) => {
+        if (points.length > 1) {
+          let isOutOfBounds = false;
+
+          points.forEach((point) => {
+            if (point) {
+              let temp = map.project(point);
+              console.log(temp);
+              if (temp.x <= 10 || temp.x >= 490 || temp.y <= 10 || temp.y >= 490) {
+                isOutOfBounds = true;
+              }
+            }
+          });
+
+          if (isOutOfBounds) {
+            // map.stop(); // Stop any ongoing map movements
+            // map.setCenter(tempCenter);
+            warnPopup.style.display = "block";
+            warnMessage.innerHTML = "😧Oh no!! some of your markers are going out of the visible area!!";
+          } else {
+            warnPopup.style.visibility = "visible";
+            warnPopup.style.display = "none";
+          }
+        }
+        if (!lockMapMove) mapData.mapCenter = Object.values(map.getCenter());
+        dataChanged = true;
+        saveState();
+      });
+
+      map.on("rotateend", () => {
+        mapData.mapBearing = map.getBearing();
+        dataChanged = true;
+        saveState();
+      });
+
+      frameColorSelector.onclick = (e) => {
+        let t = e.target.value;
+        if (t) {
+          frameImg.src = frameURLs[t];
+          frameColor = t;
+        }
+      };
+
+      titleInput.onchange = () => {
+        if (!lockMapMove) {
+          mapData.message = titleInput.value;
+        }
+        dataChanged = true;
+        saveState();
+      };
+
+      nextBtn.onclick = () => {
+        postMessage({
+          type: "NEXT",
+          payload: {
+            mapData: mapData,
+          },
+        });
+        if (nextBtn.textContent == "Next") {
+          document.querySelector(".window-1").style.display = "none";
+          document.querySelector(".window-2").style.display = "block";
+          nextBtn.innerHTML = `<i class="bi bi-arrow-left-short"></i>Previous`;
+          document.querySelector(".window-2").scrollIntoView();
+          nextBtn.style.padding = "5px 45px 5px 5px";
+
+          if (dataChanged) {
+            previewImg.src = "https://static.wixstatic.com/media/ebc535_fb796e534a184261975839ce31009a20~mv2.gif";
+            for (var i = 0; i < markers.length; i++) {
+              if (markers[i] != null) markers[i].markerCoordinates = Object.values(map.project(markers[i].markerLocation));
+            }
+            mapData.mapCenter = Object.values(map.getCenter())
+            mapData.markers = cleanArray(markers);
+            mapData.message = titleInput.value;
+            mapContainer.style.display = "block";
+            mapContainer.innerHTML = generateMapsHTML(mapData);
+            saveState(mapData);
+            html2canvas(mapContainer, {
+              dpi: "200",
+              useCORS: true,
+              onrendered: function (canvas) {
+                var canvasImg = canvas.toDataURL("image/jpg");
+                previewImg.src = canvasImg;
+                mapContainer.style.display = "none";
+                dataChanged = false;
+                addToCartBtn.style.display = "flex";
+              },
+            });
+          }
+        } else {
+          document.querySelector(".window-1").style.display = "block";
+          document.querySelector(".window-2").style.display = "none";
+          nextBtn.innerHTML = `Next<i class="bi bi-arrow-right-short">`;
+          nextBtn.style.padding = "5px 5px 5px 50px";
+          if (isPhone) {
+          }
+        }
+      };
+
+      addToCartBtn.onclick = () => {
+        console.log("add to cart");
+        productData = {
+          quantity: 1,
+          frameSize: "8x8",
+          map_type: "journeymap",
+          product_id: "Journey Map",
+          frameColor: frameColor,
+          product: "JOURNEY_MAP",
+          mapData: mapData,
+        };
+
+        postMessage(productData);
+      };
+
+      lockBtn.onclick = () => {
+        if (lockBtn.classList.contains("bi-lock-fill")) {
+          unlockMap();
+        } else {
+          lockMap();
+        }
+      };
+
+      function unlockMap() {
+        lockBtn.classList.remove("bi-lock-fill");
+        lockBtn.classList.add("bi-unlock-fill");
+        map.scrollZoom.enable();
+        map.dragPan.enable();
+        map.touchZoomRotate.enable();
+      }
+
+      function lockMap() {
+        lockBtn.classList.remove("bi-unlock-fill");
+        lockBtn.classList.add("bi-lock-fill");
+        map.scrollZoom.disable();
+        map.dragPan.disable();
+        map.touchZoomRotate.disable();
+      }
+
+      function fitMap() {
+        let distances = calculateManhattanDistances(points);
+        let bound = distances[Math.max(Object.keys(distances))];
+        console.log(bound);
+
+        map.fitBounds(Object.values(bound));
+      }
+
+      function calculateManhattanDistances(points) {
+        // Function to calculate the Manhattan distance between two points
+        function manhattanDistance(point1, point2) {
+          let distance = 0;
+          for (let i = 0; i < point1.length; i++) {
+            distance += Math.abs(point1[i] - point2[i]);
+          }
+          return distance;
+        }
+
+        const numPoints = points.length;
+        const distances = {};
+
+        for (let i = 0; i < numPoints; i++) {
+          for (let j = i + 1; j < numPoints; j++) {
+            const distance = manhattanDistance(points[i], points[j]);
+            distances[distance] = {
+              point1: points[i],
+              point2: points[j],
+            };
+          }
+        }
+        return distances;
+      }
+
+      map.on("zoom", (e) => {
+        if (points.length > 1) {
+          const pixelPoints = [];
+          points.forEach((point) => {
+            if (point) pixelPoints.push([map.project(point).x, map.project(point).y]);
+          });
+
+          // Calculate Manhattan distances and check if any are less than 55 pixels
+          const distances = Object.keys(calculateManhattanDistances(pixelPoints));
+
+          let isTooClose = Math.min(...distances) < 50;
+          let outOfBounds = false;
+          pixelPoints.forEach((point) => {
+            if (point[0] <= 0 || point[0] >= 500 || point[1] <= 0 || point[1] >= 500) {
+              outOfBounds = true;
+            }
+          });
+
+          // If points are too close, adjust the zoom level
+          if (isTooClose) {
+            // e.preventDefault();
+            // map.stop()
+            // map.setZoom(map.getZoom() + 0.01);
+            warnPopup.style.display = "block";
+            warnMessage.innerHTML = "😧Oh no!! some of your markers may be overlapping";
+          } else if (outOfBounds) {
+            warnPopup.style.display = "block";
+            warnMessage.innerHTML = "😧Oh no!! some of your markers are going out of the visible area!!";
+          } else {
+            warnPopup.style.visibility = "visible";
+            warnPopup.style.display = "none";
+          }
+        }
+      });
+
+      map.on("zoomend", () => {
+        mapData.mapCenter = Object.values(map.getCenter());
+        mapData.mapZoom = map.getZoom();
+        dataChanged = true;
+        saveState();
+      });
+
+      warnOkBtn.onclick = () => {
+        warnPopup.style.display = "none";
+        warnPopup.style.visibility = "hidden";
+      };
+
+      window.onclick = (e) => {
+        if ((e.target.className == "mapboxgl-canvas" || e.target.id == "okBtn") && currentMarkerImage && !isPhone) {
+          labelInput.style.display = "block";
+          labelInput.value = "";
+          let temp = window.getComputedStyle(title).width;
+          labelInput.style.left = e.pageX - parseFloat(temp.substr(0, temp.length - 2)) / 2;
+          labelInput.style.top = e.pageY;
+          labelInput.focus();
+          document.querySelector(".mapboxgl-canvas-container.mapboxgl-interactive").style.cursor = "grab";
+        }
+      };
+
+      window.onmessage = (event) => {
+        if (event.data.type != "SELENIUM_IDE_CS_MSG") {
+          console.log("_________________", event.data);
+          if (event.data) {
+            //    set map center to event.data.latlong
+            if (event.data.latlong) map.setCenter(event.data.latlong);
+            else if (event.data.type == "LOAD_STATE") {
+              setTimeout(() => {
+                loadState(event.data.payload);
+                lockMapMove = false;
+              }, 500);
+            } else if (event.data.type == "CLARITY_ID") {
+              console.log(event.data.payload);
+              window.clarity("identify", event.data.payload, event.data.payload, "journey-maps", event.data.payload).then(res => console.log(res))
+            } else {
+              lockMapMove = false;
+            }
+          }
+        }
+      };
+
+      labelInput.onkeypress = (e) => {
+        if (event.key === "Enter") {
+          labelInput.style.display = "none";
+        }
+      };
+
+      labelInput.onblur = () => {
+        if (currentMarker) {
+          let label = currentMarker.getElement().querySelector(".label");
+          label.innerHTML = labelInput.value;
+          label.style.fontFamily = currentLabelFont;
+          markers.push({
+            markerEmoji: currentMarkerEmoji,
+            markerLabel: labelInput.value,
+            markerLocation: currentPoint,
+            markerSize: markerSize,
+          });
+          mapData.markers = cleanArray(markers);
+          markerObjects.push(currentMarker.getElement());
+          currentMarkerImage = null;
+          currentMarkerEmoji = null;
+          currentMarker = null;
+        }
+        labelInput.style.display = "none";
+        let activeEmojiElem = emojiPicker.shadowRoot.querySelectorAll(".active-emo");
+        if (activeEmojiElem[1]) activeEmojiElem[1].classList.remove("active-emo");
+        if (activeEmojiElem[0]) activeEmojiElem[0].classList.remove("active-emo");
+        lockMap();
+        dataChanged = true;
+        saveState();
+        setMarkersList(markers);
+      };
+
+      // Utils
+      function emojiToImg(emojiTxt, size) {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.height = (size * 9) / 8;
+        canvas.width = (size * 12) / 8;
+
+        ctx.font = `${size}px "Noto Color Emoji"`;
+        ctx.fillText(emojiTxt, size / 8, (size * 4.5) / 5);
+
+        return canvas.toDataURL();
+      }
+
+      function generateMapsHTML(mapData) {
+        const markerToTextSize = {
+          20: 25,
+          30: 30,
+          40: 35,
+        };
+        let markersHTML = "";
+        let mapUrl = `https://api.mapbox.com/styles/v1/pinenlime/${mapData.mapStyle.replace("mapbox://styles/pinenlime/", "")}/static/${mapData.mapCenter[0]},${mapData.mapCenter[1]},${mapData.mapZoom},${mapData.mapBearing}/500x500@2x?access_token=pk.eyJ1IjoicGluZW5saW1lIiwiYSI6ImNrN3N6eTQ0bzByNmgzbXBsdmlwY25reDIifQ.QZROImVZfGk44ZIJLlYXQg&logo=false&attribution=false`;
+
+        mapData.markers.forEach((marker) => {
+          markersHTML += `<div class="marker-cont" style="left: ${marker.markerCoordinates[0] - 15}px; top: ${marker.markerCoordinates[1] - 14.5}px">
+      <img class="marker" height="${marker.markerSize}" src="${emojiToImg(marker.markerEmoji, 85)}" />
+      <div class="label-1"><img height="${markerToTextSize[marker.markerSize]}" src=${textToImage(marker.markerLabel, "100px", currentLabelFont)}></div>
+      </div>`;
+        });
+
+        return `<img height="500" width="500" src="${mapUrl}" alt="" id="mapImage" />
+      ${
+        mapData.message
+          ? `<div class="message-box-cont">
+      <div id="message-box" class="message-box">${mapData.message}</div>
+      </div>`
+          : ""
+      }${markersHTML}
+      <img width="500" style="position: absolute;z-index: 99;left: 10px;top: 10px;width: 500px; opacity: 0.3;" src="https://static.wixstatic.com/media/c29151_a0c1ad25f312483da1227019479bbf0f~mv2.png">`;
+      }
+
+      function textToImage(text, fontSize = "20px", fontFace = "Arial") {
+        var canvas = document.createElement("canvas");
+        var context = canvas.getContext("2d");
+        context.font = "bold " + fontSize + " " + fontFace;
+
+        var metrics = context.measureText(text);
+        var textWidth = metrics.width;
+        var textHeight = parseInt(fontSize, 10);
+
+        canvas.width = textWidth + textHeight / 1.5; // Adding some padding
+        canvas.height = textHeight * 2; // Adding some padding
+        context.font = "bold " + fontSize + " " + fontFace;
+
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        context.fillStyle = "black";
+
+        context.strokeStyle = "white"; // Outline color
+        context.lineWidth = 15; // Outline width
+
+        var textX = (canvas.width - textWidth + textHeight / 4) / 2;
+        var textY = (canvas.height + textHeight) / 2.5; // Aligning roughly at the vertical center
+
+        context.strokeText(text, textX, textY);
+
+        context.fillText(text, textX, textY);
+        var imageUrl = canvas.toDataURL("image/png");
+        return imageUrl;
+      }
+
+      function preloadImage(url) {
+        var img = new Image();
+        img.src = url;
+      }
+
+      function loadState(data) {
+        data.markers.forEach((marker, index) => {
+          let divElem = document.createElement("div");
+          divElem.style.display = "flex";
+          divElem.style.flexDirection = "column";
+          divElem.style.alignItems = "center";
+          var el = new Image();
+          el.height = marker.markerSize;
+          el.className = "marker";
+          el.src = emojiToImg(marker.markerEmoji, 85);
+          let label = document.createElement("div");
+          label.classList.add("label");
+          label.innerHTML = marker.markerLabel;
+          label.style.fontSize = markerToTextSize[marker.markerSize];
+          divElem.appendChild(el);
+          divElem.appendChild(label);
+
+          let markerObj = new mapboxgl.Marker(divElem, {
+            draggable: true,
+          })
+            .setLngLat(marker.markerLocation)
+            .addTo(map);
+
+          markerObjects.push(markerObj.getElement());
+
+          markerObj.index = index;
+          points.push(marker.markerLocation);
+
+          // Attach click event listener to remove the marker when clicked
+          markerObj.getElement().addEventListener("click", () => {
+            // points.splice(markerObj.index, 1);
+            // markers.splice(markerObj.index, 1);
+            // markerObjects.splice(markerObj.index, 1)
+            let i = markerObj.index;
+            console.log(i, markerObjects[i]);
+            points[i] = null;
+            markers[i] = null;
+            markerObjects[i] = null;
+            markerObj.remove();
+            dataChanged = true;
+            setMarkersList(markers);
+            saveState();
+          });
+          markerObj.on("dragend", (e) => {
+            console.log("here");
+            const lngLat = markerObj.getLngLat();
+            markers[markerObj.index].markerLocation = Object.values(lngLat);
+            dataChanged = true;
+            setMarkersList(markers);
+            saveState();
+          });
+        });
+        markers = [...data.markers];
+        setMarkersList(markers);
+        mapData = data;
+        titleInput.value = data.message || "";
+        dataChanged = true;
+        saveState();
+        map.setCenter(data.mapCenter);
+        map.setZoom(data.mapZoom);
+        map.setBearing(data.mapBearing);
+        let activeStyleElem = document.querySelector(`[styleidlabelled="${data.mapStyle}"]`) || document.querySelector(`[styleid="${data.mapStyle}"]`);
+        activeStyleElem.click();
+      }
+
+      function saveState() {
+        let messageData = {
+          type: "SAVE_STATE",
+          payload: {
+            mapData: mapData,
+          },
+        };
+        postMessage(messageData);
+      }
+
+      function markerDeleteBtnCallBack(e) {
+        let elem = e.target;
+        let index = elem.getAttribute("marker-index");
+        console.log(elem);
+        markerObjects[index].click();
+        console.log(markers);
+        setMarkersList(markers);
+        dataChanged = true;
+        saveState();
+      }
+
+      function setMarkersList(markers) {
+        markersListCont.innerHTML = "";
+        markers.forEach((marker, index) => {
+          if (marker != null) {
+            let temp = document.createElement("i");
+            temp.classList.add("bi");
+            temp.classList.add("bi-x-lg");
+            temp.setAttribute("marker-index", index);
+            temp.onclick = markerDeleteBtnCallBack;
+            let temp2 = document.createElement("div");
+            temp2.classList.add("marker-list-item");
+            temp2.onclick = (e) => {
+              if (e.target.className != "bi bi-x-lg") {
+                map.setCenter(marker.markerLocation);
+                if (markerObjects) markerObjects[index].getElement().scrollIntoView();
+              }
+            };
+            temp2.innerHTML = `<span class="marker-label m">${marker.markerEmoji}</span><div class="marker-label l" title="${marker.markerLabel} [${marker.markerLocation[0].toFixed(2)}, ${marker.markerLocation[1].toFixed(2)}]">${marker.markerLabel} [${marker.markerLocation[0].toFixed(2)}, ${marker.markerLocation[1].toFixed(2)}]</div>`;
+            temp2.appendChild(temp);
+            markersListCont.appendChild(temp2);
+          }
+        });
+      }
+
+      function postMessage(data) {
+        window.parent.postMessage(data, "https://www.pinenlime.com");
+        window.parent.postMessage(data, "https://editor.wix.com");
+        window.parent.postMessage(data, "http://127.0.0.1:5500");
+      }
+
+      function cleanArray(array) {
+        let temp = [];
+        array.forEach((item) => {
+          if (item != null) temp.push(item);
+        });
+        return temp;
+      }
+
+      async function loadFonts(fontLinksArr) {
+        await Promise.all(
+          fontLinksArr.map((link) => {
+            return new Promise((resolve, reject) => {
+              const fontFile = new FontFace(link.font_name, link.url);
+              fontFile.load().then(
+                (font) => {
+                  document.fonts.add(font);
+                  resolve();
+                },
+                (err) => {
+                  reject(err);
+                }
+              );
+            });
+          })
+        );
+        console.log("All fonts loaded");
+      }
+
+      postMessage("ready");
+
+    </script>
+  </body>
+</html>
