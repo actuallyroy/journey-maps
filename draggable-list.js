@@ -53,16 +53,16 @@ class DraggableListElem {
         }
       };
       markerElem.ontouchstart = (e) => {
-        if(e.target.className.indexOf("bi") != -1){
-        this.touchStartX = e.touches[0].clientY;
-        this.tempElem = markerElem;
-        this.dragElemIndex = parseInt(markerElem.getAttribute("index"));
-        this.tempElem.classList.add("active-drag-list");
+        if (e.target.className.indexOf("bi") != -1) {
+          this.touchStartX = e.touches[0].clientY;
+          this.tempElem = markerElem;
+          this.dragElemIndex = parseInt(markerElem.getAttribute("index"));
+          this.tempElem.classList.add("active-drag-list");
         }
       };
       markerElem.ontouchmove = (e) => {
         if (e.target.className.indexOf("bi") != -1) {
-          e.preventDefault()
+          e.preventDefault();
           let offsetY = e.touches[0].clientY - this.touchStartX;
           let h = parseInt(getComputedStyle(markerElem).height);
           offsetY += h / 2;
@@ -94,6 +94,7 @@ class DraggableListElem {
     tempDiv.style.opacity = 0;
     tempDiv.ondragenter = (e) => {
       this.container.insertBefore(this.tempElem, tempDiv);
+      this.targetElemIndex = this.listArray.length
     };
     this.container.appendChild(tempDiv);
   }
@@ -106,10 +107,10 @@ class DraggableListElem {
 
   shiftElement(arr, fromIndex, toIndex) {
     console.log(fromIndex, toIndex);
-    if (fromIndex >= 0 && fromIndex < arr.length && toIndex >= 0 && toIndex < arr.length && fromIndex != toIndex) {
+    if (fromIndex >= 0 && fromIndex < arr.length && toIndex >= 0 && toIndex <= arr.length && fromIndex != toIndex) {
       const elementToShift = arr.splice(fromIndex, 1)[0]; // Remove the element to shift
       console.log(elementToShift);
-      if (fromIndex > toIndex || toIndex == arr.length) {
+      if (fromIndex > toIndex) {
         arr.splice(toIndex, 0, elementToShift); // Insert the element at the new index
       } else {
         arr.splice(toIndex - 1, 0, elementToShift); // Insert the element at the new index

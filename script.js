@@ -306,3 +306,7 @@ ADD_TO_CART_BTN.onclick = () => {
 //   document.querySelector(".main-window").style.display = "none"
 //   tempWidth = parseInt(getComputedStyle(document.body).height)
 // }
+
+document.body.onresize = () => {
+  fitMap()
+}

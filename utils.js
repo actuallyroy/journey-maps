@@ -67,6 +67,10 @@ function loadMap() {
     })
   );
 
+  fitMap()
+}
+
+function fitMap(){
   let mapParent = document.querySelector(".map");
   let mapParentHeight = getComputedStyle(mapParent).height;
   mapParentHeight = mapParentHeight.substring(0, mapParentHeight.length - 2);
