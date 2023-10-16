@@ -2,10 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=320px, initial-scale=1.0">
   <title>Document</title>
 </head>
 <body style="margin: 0; display: flex; justify-content: center;">
-  <iframe src="JourneyMap.html" height="548" width="1475" style="margin: 10px;" frameborder="0"></iframe>
+  <iframe id="IFRAME" src="JourneyMap.html" height="675" width="1821" frameborder="0"></iframe>
+  <script>
+    console.log(IFRAME.contentWindow);
+    window.onmessage = (e) => {
+      console.log(e.data);
+    }
+  </script>
 </body>
 </html>

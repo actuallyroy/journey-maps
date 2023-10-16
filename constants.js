@@ -1,8 +1,6 @@
-
 //STRINGS
 const ACCESS_TOKEN = "pk.eyJ1IjoicGluZW5saW1lIiwiYSI6ImNrN3N6eTQ0bzByNmgzbXBsdmlwY25reDIifQ.QZROImVZfGk44ZIJLlYXQg";
 const STYLES_URL = "https://d1wxxs914x4wga.cloudfront.net/MapDesigns/design.json";
-
 
 // OBJECTS
 const FONTS_TO_LOAD = [
@@ -100,10 +98,10 @@ const MAP_DATA = {
 };
 
 const MARKER_SIZE_MAP = {
-  "S": 12,
-  "M": 15,
-  "L": 20
-}
+  S: 15,
+  M: 18,
+  L: 22,
+};
 
 const MAP_OPTIONS = {
   style: MAP_DATA.mapStyle,
@@ -113,7 +111,6 @@ const MAP_OPTIONS = {
   crossSourceCollisions: false,
   pitchWithRotate: false,
   touchPitch: false,
-  projection: 'globe'
 };
 
 const MAP_STYLE_FONTS = {
@@ -144,6 +141,23 @@ const MAP_STYLE_FONTS = {
   Daffodil: "Beth Ellen",
 };
 
+const PRODUCT_DATA = {
+  quantity: 1,
+  sku: "0055",
+  description: "A journey through the memories",
+  title: MAP_DATA.title,
+  gifttext: "",
+  gift: false,
+  frameSize: "8x8",
+  promptData: {},
+  cost: "-",
+  map_type: "journeymap",
+  product_id: "Journey Map",
+  title: "",
+  frameColor: "Natural",
+  mapData: MAP_DATA,
+  product: "JOURNEY_MAP",
+};
 
 const STATE = {
   markers: [],
@@ -153,9 +167,9 @@ const STATE = {
   lngLat: [],
   tempMarker: null,
   styleTitle: "",
-  mapStyle: MAP_DATA.mapStyle
-}
-
+  mapStyle: MAP_DATA.mapStyle,
+  isPhone: false,
+};
 
 const FRAME_URLS = {
   "Dark Brown": "https://static.wixstatic.com/media/9fba21_24db682ca706494b8072a122e128fc89~mv2.png",
@@ -166,4 +180,4 @@ mapboxgl.accessToken = ACCESS_TOKEN;
 const MAP = new mapboxgl.Map({ container: "map", ...MAP_OPTIONS });
 
 //ELEMENTS
-EMOJI_SIZE_ITEMS = document.querySelectorAll(".emoji-size-items")
+EMOJI_SIZE_ITEMS = document.querySelectorAll(".emoji-size-items");

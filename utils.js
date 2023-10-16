@@ -59,7 +59,7 @@ async function loadFonts(fontLinksArr) {
 }
 
 function loadMap() {
-  lockMap();
+  unlockMap();
 
   MAP.addControl(
     new mapboxgl.NavigationControl({
@@ -70,12 +70,19 @@ function loadMap() {
   let mapParent = document.querySelector(".map");
   let mapParentHeight = getComputedStyle(mapParent).height;
   mapParentHeight = mapParentHeight.substring(0, mapParentHeight.length - 2);
-  document.getElementById("map").style.transform = `scale(${parseFloat(mapParentHeight) / 500})`;
+  STATE.mapHeightMultiplier = parseFloat(mapParentHeight) / 500;
+  document.getElementById("map").style.transform = `scale(${STATE.mapHeightMultiplier})`;
 }
 
 async function init() {
   checkAndLoadFakeDB();
   loadMap();
+  let tempWidth = getComputedStyle(document.body).width;
+  tempWidth = parseInt(tempWidth.substring(0, tempWidth.length - 2));
+  if (tempWidth < 600) {
+    STATE.isPhone = true;
+  }
+  if (STATE.isPhone) lockMap();
   let cStyle = document.createElement("style");
   cStyle.innerHTML = `
             .active-emo{
@@ -188,6 +195,10 @@ function unlockMap() {
   MAP.scrollZoom.enable();
   MAP.dragPan.enable();
   MAP.touchZoomRotate.enable();
+  if (STATE.isPhone) {
+    document.querySelector(".map-container").style.position = "fixed";
+    document.querySelector(".emoji-style-cont").style.marginTop = 375 + "px";
+  }
 }
 
 function lockMap() {
@@ -196,6 +207,10 @@ function lockMap() {
   MAP.scrollZoom.disable();
   MAP.dragPan.disable();
   MAP.touchZoomRotate.disable();
+  if (STATE.isPhone) {
+    document.querySelector(".map-container").style.position = "static";
+    document.querySelector(".emoji-style-cont").style.marginTop = 0;
+  }
 }
 
 function getRoute(coordinates, callback) {
@@ -266,7 +281,13 @@ function displayRoute(coordinates) {
 }
 
 function renderRoute(MAP_DATA) {
-  if (MAP_DATA.markers.length < 2) return;
+  if (MAP_DATA.markers.length < 2) {
+    if (MAP.getSource("route-source")) {
+      MAP.removeLayer("curved-line");
+      MAP.removeSource("route-source");
+    }
+    return;
+  }
   switch (MAP_DATA.routeType) {
     case "AIR":
       let coordinates = MAP_DATA.markers.map((marker) => marker.markerLocation);
@@ -307,10 +328,10 @@ function generateMarkerImg(emojiTxt, label, labelFont, size) {
   let emojiY = size * 0.9;
 
   let textHeight = size * 0.92;
-  if (label == "") {
-    fontSize = 0;
-    emojiY += textHeight / 2;
-  }
+  // if (label == "") {
+  //   fontSize = 0;
+  //   emojiY += textHeight / 2;
+  // }
 
   ctx.font = `${size}px "Noto Color Emoji"`;
   const emojiMetrics = ctx.measureText(emojiTxt);
@@ -382,20 +403,22 @@ function updateMapData(mapData) {
 }
 
 function updateMarkersList(mapData) {
-  MARKERS_LIST.innerHTML = "";
-  mapData.markers.forEach((marker, index) => {
-    let markerElem = document.createElement("div");
-    markerElem.classList.add("marker-list-elem");
-    markerElem.innerHTML = `<div class="marker-list-elem-emoji">${marker.markerEmoji}</div>
-    <div class="marker-list-elem-label">${marker.markerLabel}</div>
-    <div class="marker-list-elem-more"><i class="bi bi-three-dots-vertical"></i></i></div>
-    <div class="marker-list-elem-delete"><i class="bi bi-trash-fill"></i></div>`;
-    markerElem.onclick = () => {
-      if (STATE.activeMarker) STATE.activeMarker.togglePopup();
-      STATE.activeMarker = STATE.markers[index];
-      STATE.markers[index].togglePopup();
-    };
-    MARKERS_LIST.appendChild(markerElem);
+  let draggableElem = new DraggableListElem({
+    listArray: mapData.markers,
+    container: MARKERS_LIST,
+    className: "list-item",
+    renderer: (marker) => {
+      return `<div onclick="selectMarker(this, event)" class="marker-list-elem"><div class="marker-list-elem-emoji">${marker.markerEmoji}</div>
+      <div class="marker-list-elem-label">${marker.markerLabel}</div>
+      <div class="marker-list-elem-more"><i class="bi bi-list"></i></i></div>
+      <div onclick="markerDelBtn(this)" class="marker-list-elem-delete"><i class="bi bi-trash-fill"></i></div></div>`;
+    },
+  });
+
+  draggableElem.onDrag((e) => {
+    MAP_DATA.markers = e.listArray;
+    console.log(e);
+    upDateMap(MAP_DATA)
   });
 }
 
@@ -411,15 +434,15 @@ function highLightClickedEmoji() {
 
 function setCursorImg(imgUrl) {
   if (imgUrl == "none" || !imgUrl) {
-    document.body.style.cursor = `auto`;
+    // document.body.style.cursor = `auto`;
     document.querySelector(".mapboxgl-canvas-container.mapboxgl-interactive").style.cursor = `auto`;
     return;
   }
   let tempImg = new Image();
   tempImg.src = imgUrl;
   tempImg.onload = () => {
-    document.body.style.cursor = `url(${imgUrl}) ${tempImg.width / 2} ${tempImg.height / 2}, auto`;
-    document.querySelector(".mapboxgl-canvas-container.mapboxgl-interactive").style.cursor = `url(${imgUrl}) ${tempImg.width / 2} ${tempImg.height / 2}, auto`;
+    // document.body.style.cursor = `url(${imgUrl}) ${tempImg.width / 2} ${tempImg.height / 2}, auto`;
+    document.querySelector(".mapboxgl-canvas-container.mapboxgl-interactive").style.cursor = `url(${imgUrl}) ${tempImg.width / 2} ${tempImg.height}, auto`;
   };
 }
 
@@ -435,10 +458,121 @@ function addMarker(markerImage, lngLat, markerSize) {
   markerObj.setLngLat(lngLat);
   markerObj.addTo(MAP);
   markerObj.getElement().onclick = () => {
-    if (STATE.activeMarker) {
-      STATE.activeMarker.togglePopup();
-    }
-    STATE.activeMarker = markerObj;
+    selectMarker(markerObj.index);
   };
   return markerObj;
+}
+
+function markerDelBtn(elem) {
+  let index = elem.parentElement.parentElement.getAttribute("index");
+  deleteMarker(index);
+}
+
+function deleteMarker(index) {
+  STATE.markers[index].remove();
+  STATE.markers.splice(index, 1);
+  MAP_DATA.markers.splice(index, 1);
+  upDateMap(MAP_DATA)
+  updateMarkersList(MAP_DATA);
+}
+
+function selectMarker(x, e) {
+  if(!e || e.target.className.indexOf("bi") == "-1"){
+    //remove existing selectedMarker styles
+    let selectedMarkerListItem = document.querySelector(".selected-list-item");
+    if (selectedMarkerListItem) {
+      selectedMarkerListItem.classList.remove("selected-list-item");
+      let selectedMarkerEmoji = selectedMarkerListItem.firstElementChild.firstElementChild;
+      let selectedMarkerLabel = selectedMarkerListItem.firstElementChild.firstElementChild.nextElementSibling;
+      if (selectedMarkerListItem != x.parentElement) {
+        selectedMarkerLabel.setAttribute("contenteditable", false);
+        selectedMarkerLabel.style.textOverflow = "ellipsis";
+      }
+    }
+    if (STATE.selectedMarker) {
+      STATE.selectedMarker.setDraggable(false);
+      STATE.selectedMarker.getElement().classList.remove("selectedMarker");
+    }
+    let index;
+    console.log(x);
+    if (typeof x == "number") {
+      index = x;
+      selectedMarkerListItem = document.querySelector(`[index="${index}"]`);
+      selectedMarkerListItem.classList.add("selected-list-item");
+      STATE.selectedMarker = STATE.markers[index];
+    } else {
+      selectedMarkerListItem = x.parentElement;
+      index = parseInt(selectedMarkerListItem.getAttribute("index"));
+      STATE.selectedMarker = STATE.markers[index];
+    }
+    selectedMarkerListItem.classList.add("selected-list-item");
+    let selectedMarkerEmoji = selectedMarkerListItem.firstElementChild.firstElementChild;
+    let selectedMarkerLabel = selectedMarkerListItem.firstElementChild.firstElementChild.nextElementSibling;
+    selectedMarkerLabel.setAttribute("contenteditable", true);
+    selectedMarkerLabel.style.textOverflow = "unset";
+    selectedMarkerLabel.onkeypress = (e) => {
+      if (e.key == "Enter") {
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.selectNodeContents(selectedMarkerLabel);
+        range.collapse(true); // Set the range to the beginning
+        sel.removeAllRanges();
+        sel.addRange(range);
+        selectedMarkerLabel.blur();
+        deSelectMarker(index);
+      }
+    };
+    selectedMarkerLabel.onblur = () => {
+      MAP_DATA.markers[index].markerLabel = selectedMarkerLabel.textContent.trim();
+      selectedMarkerLabel.style.textOverflow = "ellipsis";
+      upDateMap(MAP_DATA);
+    };
+    
+
+    let selectedMarkerElem = STATE.selectedMarker.getElement();
+    selectedMarkerElem.classList.add("selectedMarker");
+
+    STATE.selectedMarker.setDraggable(true);
+    STATE.selectedMarker.on("drag", (e) => {
+      if (MAP_DATA.routeType == "AIR") {
+        MAP_DATA.markers[index].markerLocation = Object.values(e.target._lngLat);
+        renderRoute(MAP_DATA);
+      }
+    });
+    STATE.selectedMarker.on("dragend", (e) => {
+      if (MAP_DATA.routeType != "AIR") {
+        MAP_DATA.markers[index].markerLocation = Object.values(e.target._lngLat);
+        renderRoute(MAP_DATA);
+      }
+    });
+  }
+}
+
+function deSelectMarker(x) {
+  let selectedMarkerListItem = document.querySelector(".selected-list-item");
+  if (selectedMarkerListItem) {
+    selectedMarkerListItem.classList.remove("selected-list-item");
+    let selectedMarkerEmoji = selectedMarkerListItem.firstElementChild.firstElementChild;
+    let selectedMarkerLabel = selectedMarkerListItem.firstElementChild.firstElementChild.nextElementSibling;
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selectedMarkerLabel.setAttribute("contenteditable", false);
+    selectedMarkerLabel.style.textOverflow = "ellipsis";
+  }
+  if (STATE.selectedMarker) {
+    STATE.selectedMarker.setDraggable(false);
+    STATE.selectedMarker.getElement().classList.remove("selectedMarker");
+  }
+}
+
+
+function postMessage(data) {
+  const allowedOrigins = [
+    "https://www.pinenlime.com",
+    "https://editor.wix.com",
+    "http://127.0.0.1:5500",
+  ]
+  if(allowedOrigins.includes(window.location.origin)){
+    window.parent.postMessage(data, window.location.origin);
+  }
 }
