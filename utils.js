@@ -72,9 +72,8 @@ function loadMap() {
 
 function fitMap(){
   let mapParent = document.querySelector(".map");
-  let mapParentHeight = getComputedStyle(mapParent).height;
-  mapParentHeight = mapParentHeight.substring(0, mapParentHeight.length - 2);
-  STATE.mapHeightMultiplier = parseFloat(mapParentHeight) / 500;
+  let mapParentHeight = parseFloat(getComputedStyle(mapParent).height) + 2
+  STATE.mapHeightMultiplier = mapParentHeight / 500;
   document.getElementById("map").style.transform = `scale(${STATE.mapHeightMultiplier})`;
 }
 
