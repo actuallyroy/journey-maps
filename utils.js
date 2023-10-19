@@ -84,7 +84,12 @@ function fitMap() {
 }
 
 async function init() {
-  await checkAndLoadFakeDB();
+  if (window.innerWidth <= 320) {
+    STATE.isPhone = true;
+  }
+  loadMap();
+  if (STATE.isPhone) lockMap();
+  await Promise.all([loadFonts(FONTS_TO_LOAD), loadStyles(), checkAndLoadFakeDB()]);
   const { Picker } = await import("https://unpkg.com/emoji-picker-element@1");
 
   EMOJI_PICKER = new Picker({
@@ -116,12 +121,6 @@ async function init() {
       EMOJI_PICKER.shadowRoot.appendChild(cStyle);
     }
   }, 100);
-  if (window.innerWidth <= 320) {
-    STATE.isPhone = true;
-  }
-  loadMap();
-  if (STATE.isPhone) lockMap();
-  await Promise.all([loadFonts(FONTS_TO_LOAD), loadStyles()]);
 }
 
 async function loadStyles() {
