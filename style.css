@@ -23,12 +23,18 @@ emoji-picker {
 .mapboxgl-ctrl-logo {
   display: none !important;
 }
-.main-window {
+.main-window, .next-window {
   width: 78.5%;
   height: 100vh;
   display: flex;
   gap: 30px;
   flex-direction: row;
+}
+.next-window{
+  display: none;
+}
+.preview-img-cont img{
+  height: 100%;
 }
 .fixed {
   position: fixed;
@@ -273,6 +279,10 @@ emoji-picker {
   border-radius: 3px;
 }
 
+.marker-list-elem-emoji{
+  font-family: "Noto Color Emoji";
+}
+
 .selected-list-item .marker-list-elem-label:hover, .selected-list-item .marker-list-elem-emoji:hover{
   background-color: #cacaca;
 }
@@ -298,6 +308,7 @@ emoji-picker {
   font-size: 28px;
   opacity: 0.3;
   transition: all 150ms;
+  display: none;
 }
 
 .t.bi:hover {
@@ -437,7 +448,6 @@ div.title-pad > i::before{
   justify-content: space-between;
   padding: 20px;
   user-select: none;
-  border-radius: 4px;
   border: none;
   color: white;
   font-weight: bold;

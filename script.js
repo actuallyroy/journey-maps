@@ -1,90 +1,117 @@
 await init();
 
 updateMapData({
-  mapStyle: "mapbox://styles/pinenlime/ckykeip6o5tbz14qibbf0tjuz",
-  mapZoom: 10.82572703217233,
-  mapCenter: [72.83486715445213, 19.030579584418916],
-  mapBearing: 0,
-  routeType: "AIR",
-  markers: [
-    {
-      markerSize: "M",
-      markerLabel: "Dog Yoga",
-      markerCoordinates: [240.9973245830536, 165.99331144539516],
-      markerEmoji: "🐶",
-      markerLocation: [72.83215377324399, 19.05219433379311],
-    },
-    {
-      markerSize: "S",
-      markerLabel: "Hi",
-      markerCoordinates: [254.14761670152348, 285.9752625310421],
-      markerEmoji: "🍫",
-      markerLocation: [72.83724824757698, 19.008253226168932],
-    },
-    {
-      markerSize: "L",
-      markerLabel: "2023",
-      markerCoordinates: [215.17370206578573, 288.973255966266],
-      markerEmoji: "🎁",
-      markerLocation: [72.82214960140396, 19.007155119297437],
-    },
-    {
-      markerSize: "M",
-      markerLabel: "White",
-      markerCoordinates: [125.00468199578921, 424.0040131336848],
-      markerEmoji: "🌆",
-      markerLocation: [72.78721777219138, 18.957688459559606],
-    },
-    {
-      markerSize: "M",
-      markerLabel: "Grounded",
-      markerCoordinates: [199.18440375566482, 185.04281693935394],
-      markerEmoji: "❤️",
-      markerLocation: [72.81595528502609, 19.0452185911103],
-    },
-    {
-      markerSize: "M",
-      markerLabel: "30 min late",
-      markerCoordinates: [234.1609938111305, 41.13913213427862],
-      markerEmoji: "🎵",
-      markerLocation: [72.82950535210355, 19.097907448892187],
-    },
-    {
-      markerSize: "M",
-      markerLabel: "Weekend",
-      markerCoordinates: [240.01203940677644, 118.00133771069845],
-      markerEmoji: "🍕",
-      markerLocation: [72.83177206993301, 19.069767224997392],
-    },
-    {
-      markerSize: "M",
-      markerLabel: "BP",
-      markerCoordinates: [205.18039062333108, 320.95185258928933],
-      markerEmoji: "🚕",
-      markerLocation: [72.81827815366833, 18.995441528323454],
-    },
-    {
-      markerSize: "M",
-      markerLabel: "Vacation",
-      markerCoordinates: [58.27871238295237, 177.04816778413453],
-      markerEmoji: "✈️",
-      markerLocation: [72.76136787194017, 19.048146189183925],
-    },
-  ],
-  title: "",
-});
+    mapStyle: "mapbox://styles/pinenlime/ckykeip6o5tbz14qibbf0tjuz",
+    mapZoom: 10.82572703217233,
+    mapCenter: [72.83486715445213, 19.030579584418916],
+    mapBearing: 0,
+    // routeType: "AIR",
+    markers: [
+      {
+        markerSize: "M",
+        markerLabel: "Dog Yoga",
+        markerCoordinates: [240.9973245830536, 165.99331144539516],
+        markerEmoji: "🐶",
+        markerLocation: [72.83215377324399, 19.05219433379311],
+      },
+      {
+        markerSize: "S",
+        markerLabel: "Hi",
+        markerCoordinates: [254.14761670152348, 285.9752625310421],
+        markerEmoji: "🍫",
+        markerLocation: [72.83724824757698, 19.008253226168932],
+      },
+      {
+        markerSize: "L",
+        markerLabel: "2023",
+        markerCoordinates: [215.17370206578573, 288.973255966266],
+        markerEmoji: "🎁",
+        markerLocation: [72.82214960140396, 19.007155119297437],
+      },
+      {
+        markerSize: "M",
+        markerLabel: "White",
+        markerCoordinates: [125.00468199578921, 424.0040131336848],
+        markerEmoji: "🌆",
+        markerLocation: [72.78721777219138, 18.957688459559606],
+      },
+      {
+        markerSize: "M",
+        markerLabel: "Grounded",
+        markerCoordinates: [199.18440375566482, 185.04281693935394],
+        markerEmoji: "❤️",
+        markerLocation: [72.81595528502609, 19.0452185911103],
+      },
+      {
+        markerSize: "M",
+        markerLabel: "30 min late",
+        markerCoordinates: [234.1609938111305, 41.13913213427862],
+        markerEmoji: "🎵",
+        markerLocation: [72.82950535210355, 19.097907448892187],
+      },
+      {
+        markerSize: "M",
+        markerLabel: "Weekend",
+        markerCoordinates: [240.01203940677644, 118.00133771069845],
+        markerEmoji: "🍕",
+        markerLocation: [72.83177206993301, 19.069767224997392],
+      },
+      {
+        markerSize: "M",
+        markerLabel: "BP",
+        markerCoordinates: [205.18039062333108, 320.95185258928933],
+        markerEmoji: "🚕",
+        markerLocation: [72.81827815366833, 18.995441528323454],
+      },
+      {
+        markerSize: "M",
+        markerLabel: "Vacation",
+        markerCoordinates: [58.27871238295237, 177.04816778413453],
+        markerEmoji: "✈️",
+        markerLocation: [72.76136787194017, 19.048146189183925],
+      },
+    ],
+    title: "",
+  },
+  false
+);
 
+// Update Map Center and Marker locations
 upDateMap(MAP_DATA);
+
+// //Update marker x y coordinates again based on the new Map Center
+updateMapData(null, false);
 updateMarkersList(MAP_DATA);
 
-MAP.on("load", () => {});
+console.log(MAP.transform.worldSize);
+MAP.on("load", () => {
+  MAP.on("moveend", (e) => {
+    console.log("moveend");
+    const center = Object.values(MAP.getCenter());
+    const zoom = MAP.getZoom();
+    const bearing = MAP.getBearing();
+    updateMapData({ mapCenter: center, mapZoom: zoom, mapBearing: bearing });
+    console.log(MAP.transform.pixelMatrix[8]);
+  });
+
+  MAP.on("move", (e) => {
+    if (STATE.isPhone) {
+      const center = Object.values(MAP.getCenter());
+      if (STATE.tempMarker) {
+        STATE.tempMarker.setLngLat(center);
+      }
+    }
+  });
+});
 
 MAP.on("style.load", () => {
   renderRoute(MAP_DATA);
 });
 
+
+
 MAP.on("click", (e) => {
-  console.log(e);
+  // console.log(convertLocToCoords([72.82950535210355, 19.097907448892187], MAP_DATA.mapZoom, MAP.transform.pixelMatrix));
   STATE.lngLat = Object.values(e.lngLat);
   //create a temporary marker
   if (STATE.markerImage) {
@@ -117,27 +144,11 @@ window.onkeyup = (e) => {
   }
 };
 
-MAP.on("moveend", (e) => {
-  const center = Object.values(MAP.getCenter());
-  const zoom = MAP.getZoom();
-  const bearing = MAP.getBearing();
-  updateMapData({ mapCenter: center, mapZoom: zoom, mapBearing: bearing });
-  console.log(e);
-});
-
-MAP.on("move", (e) => {
-  if (STATE.isPhone) {
-    const center = Object.values(MAP.getCenter());
-    if (STATE.tempMarker) {
-      STATE.tempMarker.setLngLat(center);
-    }
-  }
-});
 
 LABEL_INPUT.onkeypress = (e) => {
   if (e.key === "Enter" || e.key === "Tab") {
-    STATE.enterClicked = true
-    LABEL_INPUT.blur()
+    STATE.enterClicked = true;
+    LABEL_INPUT.blur();
   }
 };
 
@@ -164,8 +175,8 @@ LABEL_INPUT.onblur = () => {
     STATE.markerEmoji = null;
     STATE.markerImage = null;
     setCursorImg(null);
-    if(STATE.isPhone){
-      lockMap()
+    if (STATE.isPhone) {
+      lockMap();
     }
   }
 };
@@ -202,10 +213,6 @@ EMOJI_PICKER.addEventListener("emoji-click", (event) => {
     STATE.markerImage = generateMarkerImg(event.detail.unicode, "", "", 100);
     STATE.markerEmoji = event.detail.unicode;
     setCursorImg(emojiToImg(STATE.markerEmoji, MARKER_SIZE_MAP[STATE.markerSize]));
-    console.log(EMOJI_SIZE_ITEMS);
-    EMOJI_SIZE_ITEMS.forEach((item) => {
-      item.innerHTML = STATE.markerEmoji;
-    });
   } else {
     highLightClickedEmoji();
     STATE.markerImage = generateMarkerImg(event.detail.unicode, "", "", 100);
@@ -220,10 +227,12 @@ EMOJI_PICKER.addEventListener("emoji-click", (event) => {
     markerObj.setLngLat(MAP.getCenter());
     markerObj.addTo(MAP);
     STATE.tempMarker = markerObj;
-    EMOJI_PICKER.style.pointerEvents = "none";
     OK_CANCEL.style.display = "flex";
-    unlockMap()
+    unlockMap();
   }
+  EMOJI_SIZE_ITEMS.forEach((item) => {
+    item.innerHTML = STATE.markerEmoji;
+  });
 });
 
 EMOJI_SIZE.onclick = (e) => {
@@ -236,7 +245,7 @@ EMOJI_SIZE.onclick = (e) => {
     if (size) {
       e.target.classList.add("selected-marker-size");
       STATE.markerSize = size;
-      if(STATE.tempMarker) STATE.tempMarker._element.height = MARKER_SIZE_MAP[size] * 2.2;
+      if (STATE.tempMarker) STATE.tempMarker._element.height = MARKER_SIZE_MAP[size] * 2.2;
       if (STATE.markerEmoji) {
         setCursorImg(emojiToImg(STATE.markerEmoji, MARKER_SIZE_MAP[STATE.markerSize]));
       }
@@ -249,7 +258,7 @@ TITLE.onblur = () => {
     TITLE.parentElement.style.display = "none";
     ADD_TITLE.style.display = "block";
   } else {
-    TITLE_TXT.innerHTML = "Title: " + TITLE.innerHTML
+    TITLE_TXT.innerHTML = "Title: " + TITLE.innerHTML;
     updateMapData({ title: TITLE.innerHTML });
   }
 };
@@ -282,7 +291,7 @@ CANCEL_BUTTON.onclick = () => {
 OK_BUTTON.onclick = () => {
   OK_CANCEL.style.display = "none";
   EMOJI_PICKER.style.pointerEvents = "auto";
-  STATE.lngLat = Object.values(MAP.getCenter())
+  STATE.lngLat = Object.values(MAP.getCenter());
   LABEL_INPUT.style.top = MAP.project(STATE.lngLat).y * STATE.mapHeightMultiplier + "px";
   LABEL_INPUT.style.left = MAP.project(STATE.lngLat).x * STATE.mapHeightMultiplier + "px";
   LABEL_INPUT.value = "";
@@ -294,19 +303,59 @@ OK_BUTTON.onclick = () => {
 };
 
 ADD_TO_CART_BTN.onclick = () => {
-  PRODUCT_DATA.title = MAP_DATA.title
-  PRODUCT_DATA.mapData = MAP_DATA
+  // console.log(MAP.getCanvas().toDataURL());
+  PRODUCT_DATA.title = MAP_DATA.title;
+  PRODUCT_DATA.mapData = MAP_DATA;
   postMessage({
     type: "ADD_TO_CART",
-    productData: PRODUCT_DATA,
+    payload: PRODUCT_DATA,
   });
-}
+};
 
-// NEXT_BTN.onclick = () => {
-//   document.querySelector(".main-window").style.display = "none"
-//   tempWidth = parseInt(getComputedStyle(document.body).height)
-// }
+NEXT_BTN.onclick = () => {
+  if (STATE.currentWindow == 1) {
+    document.querySelector(".main-window").style.display = "none";
+    document.querySelector(".next-window").style.display = "flex";
+    STATE.currentWindow = 2;
+  } else {
+    document.querySelector(".main-window").style.display = "flex";
+    document.querySelector(".next-window").style.display = "none";
+    STATE.currentWindow = 1;
+  }
+  let temp = getComputedStyle(document.body);
+  postMessage({
+    type: "NEXT",
+    payload: {
+      height: parseFloat(temp.height),
+      width: parseFloat(temp.width),
+    },
+  });
+};
 
 document.body.onresize = () => {
-  fitMap()
-}
+  if (window.innerWidth <= 320) {
+    STATE.isPhone = true;
+    lockMap();
+  }
+  fitMap();
+};
+
+window.onmessage = (e) => {
+  switch (e.data.type) {
+    case "LNG_LAT":
+      MAP.setCenter(e.data.payload.lngLat);
+      break;
+    case "LOAD_STATE":
+      console.log(e.data);
+      loadState(e.data.payload);
+      break;
+    default:
+      break;
+  }
+};
+
+postMessage({
+  type: "READY",
+});
+
+window.onclick = (e) => {};

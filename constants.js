@@ -90,7 +90,8 @@ const DEFAULT_MAP_STYLE = {
 const MAP_DATA = {
   mapStyle: DEFAULT_MAP_STYLE.labelled,
   mapZoom: 15,
-  routeType: "AIR",
+  routeType: null,
+  routeColor: "",
   mapBearing: 0,
   mapCenter: [55.14, 25.069],
   title: null,
@@ -111,6 +112,7 @@ const MAP_OPTIONS = {
   crossSourceCollisions: false,
   pitchWithRotate: false,
   touchPitch: false,
+  preserveDrawingBuffer: true,
 };
 
 const MAP_STYLE_FONTS = {
@@ -169,8 +171,14 @@ const STATE = {
   styleTitle: "",
   mapStyle: MAP_DATA.mapStyle,
   isPhone: false,
+  currentWindow: 1,
 };
 
+const FRAME_SIZE_PREVIEW_IMG_URLS  = {
+  "4x4" : "https://static.wixstatic.com/media/33f547_f70a67d1054f4f908269721f9fe05259~mv2.png",
+  "6x6": "https://static.wixstatic.com/media/33f547_1557a9d87690457c875e97a2e3c1e273~mv2.png",
+  "8x8": "https://static.wixstatic.com/media/33f547_118fe72fe1b64e9e94a71a6948b16b50~mv2.png"
+}
 const FRAME_URLS = {
   "Dark Brown": "https://static.wixstatic.com/media/9fba21_24db682ca706494b8072a122e128fc89~mv2.png",
   Natural: "https://static.wixstatic.com/media/9fba21_6cd730decf5c49fab0b42cc9ebef495c~mv2.png",

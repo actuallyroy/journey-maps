@@ -1,6 +1,13 @@
 {
-    "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter"
-    },
-    "python.formatting.provider": "none"
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "python.formatting.provider": "none",
+
+  "liveServer.settings.https": {
+    "enable": true, //set it true to enable the feature.
+    "cert": "C:\\Users\\sunny\\server.crt", //full path of the certificate
+    "key": "C:\\Users\\sunny\\server.key", //full path of the private key
+    "passphrase": "hello world"
+  }
 }

@@ -1,3 +1,6 @@
+// import MercatorCoordinate from "./mercator_coordinate.js";
+// import Point from "./point-geometry.js";
+
 async function checkAndLoadFakeDB() {
   async function hasIDB() {
     if (typeof indexedDB === "undefined") {
@@ -72,19 +75,17 @@ function loadMap() {
 
 function fitMap(){
   let mapParent = document.querySelector(".map");
-  let mapParentHeight = parseFloat(getComputedStyle(mapParent).height) + 2
+  let mapParentHeight = parseFloat(getComputedStyle(mapParent).height) + (STATE.isPhone? 0 : 5)
   STATE.mapHeightMultiplier = mapParentHeight / 500;
   document.getElementById("map").style.transform = `scale(${STATE.mapHeightMultiplier})`;
 }
 
 async function init() {
+  if(window.innerWidth <= 320){
+    STATE.isPhone = true
+  }
   checkAndLoadFakeDB();
   loadMap();
-  let tempWidth = getComputedStyle(document.body).width;
-  tempWidth = parseInt(tempWidth.substring(0, tempWidth.length - 2));
-  if (tempWidth < 600) {
-    STATE.isPhone = true;
-  }
   if (STATE.isPhone) lockMap();
   let cStyle = document.createElement("style");
   cStyle.innerHTML = `
@@ -142,6 +143,7 @@ async function loadStyles() {
           if (style != MAP_DATA.mapStyle) {
             STATE.styleTitle = mapStyle.Title;
             MAP_DATA.mapStyle = style;
+            updateMapData()
             upDateMap(MAP_DATA);
             STATE.mapStyle = style;
           }
@@ -159,10 +161,13 @@ function upDateMap(MAP_DATA) {
   });
   STATE.markers = [];
   let temp = MAP_DATA.mapStyle.replace("mapbox://styles/pinenlime/", "");
-  if (MAP.getStyle().sprite.indexOf(temp) == -1) {
-    MAP.setStyle(MAP_DATA.mapStyle);
-    let activeStyleElem = document.querySelector(`[styleidlabelled="${MAP_DATA.mapStyle}"]`) || document.querySelector(`[styleid="${MAP_DATA.mapStyle}"]`);
-    activeStyleElem.click();
+  try {
+    if (MAP.getStyle().sprite.indexOf(temp) == -1) {
+      MAP.setStyle(MAP_DATA.mapStyle);
+      let activeStyleElem = document.querySelector(`[styleidlabelled="${MAP_DATA.mapStyle}"]`) || document.querySelector(`[styleid="${MAP_DATA.mapStyle}"]`);
+      activeStyleElem.click();
+    }
+  } catch (error) {
   }
   MAP.setZoom(MAP_DATA.mapZoom);
   MAP.setBearing(MAP_DATA.mapBearing);
@@ -253,6 +258,7 @@ function displayRoute(coordinates) {
     } else {
       landColor = MAP.getPaintProperty("land", "background-color") || MAP.getPaintProperty("background", "background-color");
     }
+    updateMapData({routeColor: colorToHex(getNegativeColor(landColor))})
     // Add a new source and layer if they don't exist
     MAP.addSource("route-source", {
       type: "geojson",
@@ -277,7 +283,7 @@ function displayRoute(coordinates) {
       paint: {
         "line-color": getNegativeColor(landColor),
         "line-width": 2,
-        "line-dasharray": [1, 2],
+        // "line-dasharray": [1, 2],
       },
     });
   }
@@ -293,6 +299,7 @@ function renderRoute(MAP_DATA) {
   }
   switch (MAP_DATA.routeType) {
     case "AIR":
+      console.log();
       let coordinates = MAP_DATA.markers.map((marker) => marker.markerLocation);
       var line = turf.lineString(coordinates);
       var curved = turf.bezierSpline(line, { sharpness: 1 });
@@ -356,7 +363,6 @@ function generateMarkerImg(emojiTxt, label, labelFont, size) {
 }
 
 function getNegativeColor(color) {
-  console.log(color);
   // HEX format
   if (color.charAt(0) == "#") {
     const hex = color.substring(1);
@@ -395,14 +401,48 @@ function getNegativeColor(color) {
   throw new Error("Unsupported color format");
 }
 
-function updateMapData(mapData) {
-  if (mapData.mapCenter) MAP_DATA.mapCenter = mapData.mapCenter;
-  if (mapData.mapZoom) MAP_DATA.mapZoom = mapData.mapZoom;
-  if (mapData.mapBearing) MAP_DATA.mapBearing = mapData.mapBearing;
-  if (mapData.routeType) MAP_DATA.routeType = mapData.routeType;
-  if (mapData.markers) MAP_DATA.markers = mapData.markers;
-  if (mapData.mapStyle) MAP_DATA.mapStyle = mapData.mapStyle;
-  if (mapData.title != null) MAP_DATA.title = mapData.title;
+function colorToHex(color) {
+  // Create a temporary div to utilize browser's ability to convert colors
+  const div = document.createElement('div');
+  div.style.color = color;
+
+  // Attach the div to the body to compute the computed style
+  document.body.appendChild(div);
+
+  // Get the computed style
+  const computedColor = getComputedStyle(div).color;
+  
+  // Remove the div after getting the computed style
+  document.body.removeChild(div);
+
+  // Extract the RGB values
+  const match = computedColor.match(/\d+/g);
+  const [r, g, b] = match;
+
+  // Convert RGB to Hex
+  const hex = `${Number(r).toString(16).padStart(2, '0')}${Number(g).toString(16).padStart(2, '0')}${Number(b).toString(16).padStart(2, '0')}`;
+
+  return hex.toUpperCase();
+}
+
+function updateMapData(mapData, save = true) {
+  console.log(mapData);
+  if(mapData){
+    if (mapData.mapCenter) MAP_DATA.mapCenter = mapData.mapCenter;
+    if (mapData.mapZoom) MAP_DATA.mapZoom = mapData.mapZoom;
+    if (mapData.mapBearing) MAP_DATA.mapBearing = mapData.mapBearing;
+    if (mapData.routeType) MAP_DATA.routeType = mapData.routeType;
+    if (mapData.markers) MAP_DATA.markers = mapData.markers;
+    if (mapData.mapStyle) MAP_DATA.mapStyle = mapData.mapStyle;
+    if (mapData.title != null) MAP_DATA.title = mapData.title;
+    if (mapData.routeColor) MAP_DATA.routeColor = mapData.routeColor;
+  }
+  MAP_DATA.markers.forEach((marker) => {
+    marker.markerCoordinates = Object.values(MAP.project({lng: marker.markerLocation[0], lat: marker.markerLocation[1]}))
+  });
+  if(save){
+    saveState()
+  }
 }
 
 function updateMarkersList(mapData) {
@@ -419,7 +459,7 @@ function updateMarkersList(mapData) {
   });
 
   draggableElem.onDrag((e) => {
-    MAP_DATA.markers = e.listArray;
+    updateMapData({markers: e.listArray})
     console.log(e);
     upDateMap(MAP_DATA)
   });
@@ -527,6 +567,7 @@ function selectMarker(x, e) {
     };
     selectedMarkerLabel.onblur = () => {
       MAP_DATA.markers[index].markerLabel = selectedMarkerLabel.textContent.trim();
+      updateMapData()
       selectedMarkerLabel.style.textOverflow = "ellipsis";
       upDateMap(MAP_DATA);
     };
@@ -539,12 +580,14 @@ function selectMarker(x, e) {
     STATE.selectedMarker.on("drag", (e) => {
       if (MAP_DATA.routeType == "AIR") {
         MAP_DATA.markers[index].markerLocation = Object.values(e.target._lngLat);
+        updateMapData()
         renderRoute(MAP_DATA);
       }
     });
     STATE.selectedMarker.on("dragend", (e) => {
       if (MAP_DATA.routeType != "AIR") {
         MAP_DATA.markers[index].markerLocation = Object.values(e.target._lngLat);
+        updateMapData()
         renderRoute(MAP_DATA);
       }
     });
@@ -570,12 +613,71 @@ function deSelectMarker(x) {
 
 
 function postMessage(data) {
-  const allowedOrigins = [
-    "https://www.pinenlime.com",
-    "https://editor.wix.com",
-    "http://127.0.0.1:5500",
-  ]
-  if(allowedOrigins.includes(window.location.origin)){
-    window.parent.postMessage(data, window.location.origin);
-  }
+  window.parent.postMessage(data, "*")
 }
+
+function loadState(productData){
+  updateMapData(productData.mapData, false)
+  upDateMap(MAP_DATA)
+  updateMarkersList(MAP_DATA)
+}
+
+function saveState(){
+  PRODUCT_DATA.mapData = MAP_DATA
+  PRODUCT_DATA.title = MAP_DATA.title
+  postMessage({
+    type: "SAVE_STATE",
+    payload: PRODUCT_DATA,
+  })
+}
+
+function setPreview(mapData){
+  
+}
+
+function generatePreview(mapData){  
+}
+
+function convertLocToCoords(coords, mapZoom, pixelMatrix){
+  function project(lng, lat) {
+    const x = mercatorXfromLng(lng);
+    const y = mercatorYfromLat(lat);
+    return {x, y, z: 0};
+  }
+  
+  function mercatorXfromLng(lng){
+    return (180 + lng) / 360;
+  }
+  
+  function mercatorYfromLat(lat){
+    return (180 - (180 / Math.PI * Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360)))) / 360;
+  }
+  function locationCoordinate(lngLat, altitude = 0){
+    const z = undefined
+    const projectedLngLat = project(lngLat.lng, lngLat.lat);
+    return new MercatorCoordinate(
+        projectedLngLat.x,
+        projectedLngLat.y,
+        z);
+  }
+  coords = locationCoordinate({ lng:
+    coords[0], lat: coords[1]})
+  function transformMat4(out, a, m) {
+    var x = a[0],
+        y = a[1],
+        z = a[2],
+        w = a[3];
+    out[0] = m[0] * x + m[4] * y + m[8] * z + m[12] * w;
+    out[1] = m[1] * x + m[5] * y + m[9] * z + m[13] * w;
+    out[2] = m[2] * x + m[6] * y + m[10] * z + m[14] * w;
+    out[3] = m[3] * x + m[7] * y + m[11] * z + m[15] * w;
+    return out;
+  }
+  let worldSize = Math.pow(2, mapZoom) * 512;
+  const p = [coord.x * worldSize, coord.y * worldSize, coord.toAltitude(), 1];
+  transformMat4(p, p, pixelMatrix);
+  return p[3] > 0 ?
+      new Point(p[0] / p[3], p[1] / p[3]) :
+      new Point(Number.MAX_VALUE, Number.MAX_VALUE);
+}
+

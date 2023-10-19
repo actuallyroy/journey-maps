@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://map-preview-images.s3.amazonaws.com/Fonts/ishans_html2canvas.js"></script>
     <link rel="stylesheet" href="https://d1tsukz865bhnw.cloudfront.net/scripts/MemoryMap/MemoryMap.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+    <script src="utils.js"></script>
     <title>Document</title>
     <style>
       body {
@@ -16,7 +18,7 @@
 
       .label-1 {
         position: relative;
-        top: -5px;
+        height: 30px;
         display: flex;
         align-items: center;
       }
@@ -30,7 +32,6 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        width: 50px;
       }
 
       .marker {
@@ -41,7 +42,7 @@
       .message-box-cont {
         position: absolute;
         top: 450px;
-        left: 96px;
+        left: 146px;
         padding: 5px;
         background-color: white;
       }
@@ -50,7 +51,7 @@
         background: white;
         padding-bottom: 6px;
         padding-top: 2px;
-        width: 300px;
+        width: 200px;
         text-align: center;
         font-size: small;
         border: 2px solid black;
@@ -61,7 +62,6 @@
       .map-container {
         position: absolute;
         padding: 10px;
-        padding-bottom: 6px;
         width: fit-content;
         background-color: white;
       }
@@ -70,7 +70,7 @@
         object-fit: contain;
       }
 
-      .water-mark-text{
+      .water-mark-text {
         font-size: 10px;
         font-family: Futura-LT-W01-Book;
         text-align: center;
@@ -83,7 +83,7 @@
           height: 100vw;
           position: relative;
         }
-        .water-mark-text{
+        .water-mark-text {
           width: 100vw;
         }
       }
@@ -92,12 +92,13 @@
 
   <body>
     <img id="previewImage" height="500" width="500" src="https://static.wixstatic.com/media/ebc535_fb796e534a184261975839ce31009a20~mv2.gif" alt="" srcset="" />
-    <div class="water-mark-text" style="text-align: center; font-family: Futura-LT-W01-Book; font-size: 10px; line-height: 1;">The watermark is only for the preview.<br />Your final product will NOT have a watermark.</div>
+    <div class="water-mark-text" style="text-align: center; font-family: Futura-LT-W01-Book; font-size: 10px; line-height: 1">The watermark is only for the preview.<br />Your final product will NOT have a watermark.</div>
     <div style="height: 0; width: 0; position: absolute; top: 0; left: 0; z-index: -1" id="mapsContainer">
       <div class="map-container" id="mapContainer"></div>
       <div style="height: 520px; width: 520px; background: white; z-index: 99; position: absolute"></div>
     </div>
     <script type="module">
+      import { encode, decode } from "https://cdn.jsdelivr.net/npm/@googlemaps/polyline-codec@1.0.28/+esm";
       var mapStyles;
       const mapStyleFonts = {
         Rust: "Source Sans Pro SemiBold",
@@ -222,10 +223,10 @@
             previewImg.src = "https://static.wixstatic.com/media/ebc535_fb796e534a184261975839ce31009a20~mv2.gif";
             const mapData = event.data;
             const mapContainer = document.getElementById("mapContainer");
-            setTimeout(() => {
-              mapContainer.innerHTML = generateMapsHTML(mapData);
+            setTimeout(async () => {
+              mapContainer.innerHTML = await generateMapsHTML(mapData);
               html2canvas(mapContainer, {
-                dpi: "300",
+                dpi: "200",
                 useCORS: true,
                 onrendered: function (canvas) {
                   var canvasImg = canvas.toDataURL("image/jpg");
@@ -237,21 +238,85 @@
           }
         }
       };
-      function generateMapsHTML(mapData) {
-        const markerToTextSize = {
-          10: 13,
-          30: 30,
-          40: 35,
+
+      function generateMapboxStaticImageURL(coordinates, style, mapCenter, mapZoom, mapBearing, routeColor) {
+
+        const accessToken = "pk.eyJ1IjoicGluZW5saW1lIiwiYSI6ImNrN3N6eTQ0bzByNmgzbXBsdmlwY25reDIifQ.QZROImVZfGk44ZIJLlYXQg";
+
+        
+        const baseURL = "https://api.mapbox.com/styles/v1/pinenlime/";
+        const imageSize = "500x500";
+        if(coordinates){
+          var objectsArray = convertCoordinatesToObjects(coordinates.slice(0, coordinates.length-2));
+          var route = encodeURIComponent(encode(objectsArray))
+        }
+
+        const imageURL = `${baseURL}${style.replace("mapbox://styles/pinenlime/", "")}/static/path-4+${routeColor? routeColor : '000'}(${route})/${mapCenter[0]},${mapCenter[1]},${mapZoom},${mapBearing}/${imageSize}@2x?access_token=pk.eyJ1IjoicGluZW5saW1lIiwiYSI6ImNrN3N6eTQ0bzByNmgzbXBsdmlwY25reDIifQ.QZROImVZfGk44ZIJLlYXQg&logo=false&attribution=false`;
+
+        return imageURL;
+      }
+      function convertCoordinatesToObjects(coordinates) {
+        return coordinates.map((point) => ({ lng: point[0], lat: point[1] }));
+      }
+      
+      function getRoute(coordinates, callback) {
+        var url = coordinates.join(";") + "?alternatives=false&geometries=polyline&language=en&overview=full&steps=true&access_token=" + ACCESS_TOKEN;
+        fetch("https://api.mapbox.com/directions/v5/mapbox/walking/" + url)
+          .then((response) => response.json())
+          .then((data) => {
+            callback(null, data.routes[0].geometry);
+          })
+          .catch((error) => {
+            callback(error);
+          });
+      }
+
+
+      async function generateMapsHTML(mapData) {
+        const temp = {
+          20: "S",
+          30: "M",
+          40: "L",
+        };
+        const MARKER_SIZE_MAP = {
+          S: 15,
+          M: 18,
+          L: 22,
         };
         let markersHTML = "";
-        let mapUrl = `https://api.mapbox.com/styles/v1/pinenlime/${mapData.mapStyle.replace("mapbox://styles/pinenlime/", "")}/static/${mapData.mapCenter[0]},${mapData.mapCenter[1]},${mapData.mapZoom},${mapData.mapBearing}/500x500@2x?access_token=pk.eyJ1IjoicGluZW5saW1lIiwiYSI6ImNrN3N6eTQ0bzByNmgzbXBsdmlwY25reDIifQ.QZROImVZfGk44ZIJLlYXQg&logo=false&attribution=false`;
-
-        mapData.markers.forEach((marker) => {
-          markersHTML += `<div class="marker-cont" style="left: ${marker.markerCoordinates[0] - 15}px; top: ${marker.markerCoordinates[1] - 14.5}px">
-      <img class="marker" height="${marker.markerSize}" src="${emojiToImg(marker.markerEmoji, 85, "Noto Color Emoji")}" />
-      <div class="label-1"><img height="${markerToTextSize[marker.markerSize]}" src=${textToImage(marker.markerLabel, "100px", fontNameFromStyle(mapData.mapStyle))}></div>
-      </div>`;
-        });
+        let coordinates = mapData.markers.map((marker) => marker.markerLocation);
+        console.log(coordinates);
+        let routeData = "";
+        if(coordinates.length >= 2){
+          if (mapData.routeType == "AIR") {
+            if(coordinates.length >= 2){
+              var line = turf.lineString(coordinates);
+              var curved = turf.bezierSpline(line, { sharpness: 1 });
+              routeData = curved.geometry.coordinates;
+            }
+          } else if(mapData.routeType == "ROAD") {
+            await getRoute(
+              mapData.markers.map((marker) => marker.markerLocation),
+              (err, coordinates) => {
+                if (err) {
+                  console.log(err);
+                  return;
+                }
+                routeData = coordinates;
+              }
+            );
+          }
+        }
+        const mapUrl = generateMapboxStaticImageURL(routeData, mapData.mapStyle, mapData.mapCenter, mapData.mapZoom, mapData.mapBearing, mapData.routeColor);
+        if(mapData.message == null){
+          mapData.markers.forEach((marker) => {
+            markersHTML += `<img height="${MARKER_SIZE_MAP[marker.markerSize] * 2.2}" src="${generateMarkerImg(marker.markerEmoji, marker.markerLabel, fontNameFromStyle(mapData.mapStyle), 100)}" class="marker-cont" style="left: ${marker.markerCoordinates[0] - 15}px; top: ${marker.markerCoordinates[1] - 14.5}px"></img>`;
+          });
+        }else{
+          mapData.markers.forEach((marker) => {
+            markersHTML += `<img height="${MARKER_SIZE_MAP[temp[marker.markerSize]] * 2.2}" src="${generateMarkerImg(marker.markerEmoji, marker.markerLabel, fontNameFromStyle(mapData.mapStyle), 100)}" class="marker-cont" style="left: ${marker.markerCoordinates[0] - 15}px; top: ${marker.markerCoordinates[1] - 14.5}px"></img>`;
+          });
+        }
 
         return `<img height="500" width="500" src="${mapUrl}" alt="" id="mapImage" />
       ${
@@ -260,7 +325,8 @@
       <div id="message-box" class="message-box">${mapData.message}</div>
       </div>`
           : ""
-      }${markersHTML}`;
+      }${markersHTML}
+      <img width="500" style="position: absolute;z-index: 99;left: 10px;top: 10px;width: 500px; opacity: 0.3;" src="https://static.wixstatic.com/media/c29151_a0c1ad25f312483da1227019479bbf0f~mv2.png">`;
       }
 
       function emojiToImg(emojiTxt, size, fontFace) {
@@ -332,9 +398,9 @@
       }
 
       function postMessage(data) {
-        window.parent.postMessage(data, "http://127.0.0.1:5500");
         window.parent.postMessage(data, "https://www.pinenlime.com");
         window.parent.postMessage(data, "https://editor.wix.com");
+        window.parent.postMessage(data, "http://127.0.0.1:5500");
       }
       postMessage("ready");
     </script>
