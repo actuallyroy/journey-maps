@@ -495,7 +495,6 @@ div.title-pad > i::before{
     height: unset;
   }
   .map-container{
-    position: fixed;
     z-index: 99;
     background: white;
     height: fit-content;
