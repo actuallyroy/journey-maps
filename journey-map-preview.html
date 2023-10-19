@@ -307,6 +307,9 @@
             );
           }
         }
+
+        let title = mapData.message || mapData.title
+        
         const mapUrl = generateMapboxStaticImageURL(routeData, mapData.mapStyle, mapData.mapCenter, mapData.mapZoom, mapData.mapBearing, mapData.routeColor);
         if(mapData.message == null){
           mapData.markers.forEach((marker) => {
@@ -320,9 +323,9 @@
 
         return `<img height="500" width="500" src="${mapUrl}" alt="" id="mapImage" />
       ${
-        mapData.message
+        title
           ? `<div class="message-box-cont">
-      <div id="message-box" class="message-box">${mapData.message}</div>
+      <div id="message-box" class="message-box">${title}</div>
       </div>`
           : ""
       }${markersHTML}

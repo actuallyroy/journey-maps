@@ -156,7 +156,7 @@ const PRODUCT_DATA = {
   map_type: "journeymap",
   product_id: "Journey Map",
   title: "",
-  frameColor: "Natural",
+  frameColor: "Dark Brown",
   mapData: MAP_DATA,
   product: "JOURNEY_MAP",
 };

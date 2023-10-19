@@ -312,6 +312,8 @@ ADD_TO_CART_BTN.onclick = () => {
   });
 };
 
+NEXT_BTN.style.display = "none"
+
 NEXT_BTN.onclick = () => {
   if (STATE.currentWindow == 1) {
     document.querySelector(".main-window").style.display = "none";
