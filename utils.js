@@ -89,7 +89,9 @@ async function init() {
   }
   loadMap();
   if (STATE.isPhone) lockMap();
-  await Promise.all([loadFonts(FONTS_TO_LOAD), loadStyles(), checkAndLoadFakeDB()]);
+  await loadFonts(FONTS_TO_LOAD)
+  await loadStyles()
+  await checkAndLoadFakeDB();
   const { Picker } = await import("https://unpkg.com/emoji-picker-element@1");
 
   EMOJI_PICKER = new Picker({

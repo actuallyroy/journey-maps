@@ -16,7 +16,7 @@ body {
   outline: 1px solid var(--border-gray);
 }
 emoji-picker {
-  --emoji-font-family: "Noto Color Emoji";
+  --emoji-font-family: "Noto Color Emoji", "Twemoji Mozilla","Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","EmojiOne Color","Android Emoji",sans-serif;
   --emoji-size: 1.25vw;
   --border-size: 0px;
 }
@@ -481,7 +481,6 @@ div.title-pad > i::before{
 
 @media (max-width: 320px) {
   emoji-picker {
-    --emoji-font-family: "Noto Color Emoji";
     --emoji-size: 17px;
     height: calc(85% - 30px) !important;
   }
