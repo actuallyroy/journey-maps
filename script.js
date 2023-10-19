@@ -114,8 +114,9 @@ MAP.on("click", (e) => {
   // console.log(convertLocToCoords([72.82950535210355, 19.097907448892187], MAP_DATA.mapZoom, MAP.transform.pixelMatrix));
   STATE.lngLat = Object.values(e.lngLat);
   //create a temporary marker
-  if (STATE.markerImage) {
+  if (STATE.markerImage && !isPhone) {
     STATE.tempMarker = addMarker(STATE.markerImage, STATE.lngLat, STATE.markerSize);
+    STATE.markerImage = "";
     // STATE.markers.push(marker);
     // updateMarkersList(MAP_DATA);
     LABEL_INPUT.style.top = MAP.project(STATE.lngLat).y * STATE.mapHeightMultiplier + "px";
@@ -123,7 +124,6 @@ MAP.on("click", (e) => {
     LABEL_INPUT.value = "";
     LABEL_INPUT.style.display = "block";
     LABEL_INPUT.focus();
-    STATE.markerImage = "";
     let activeEmojiElem = EMOJI_PICKER.shadowRoot.querySelectorAll(".active-emo");
     if (activeEmojiElem[1]) activeEmojiElem[1].classList.remove("active-emo");
     if (activeEmojiElem[0]) activeEmojiElem[0].classList.remove("active-emo");

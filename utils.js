@@ -84,7 +84,6 @@ async function init() {
   if(window.innerWidth <= 320){
     STATE.isPhone = true
   }
-  checkAndLoadFakeDB();
   loadMap();
   if (STATE.isPhone) lockMap();
   let cStyle = document.createElement("style");
@@ -110,6 +109,7 @@ async function init() {
       EMOJI_PICKER.shadowRoot.appendChild(cStyle);
     }
   }, 100);
+  await checkAndLoadFakeDB();
   await Promise.all([loadFonts(FONTS_TO_LOAD), loadStyles()]);
 }
 
