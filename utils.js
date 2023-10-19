@@ -213,15 +213,15 @@ function unlockMap() {
   MAP.scrollZoom.enable();
   MAP.dragPan.enable();
   MAP.touchZoomRotate.enable();
-  if (STATE.isPhone) {
-    let tempElem = document.querySelector(".map-container")
-    tempElem = document.querySelector(".map-container")
-    var rect = tempElem.getBoundingClientRect();
-    tempElem.style.position = "fixed";
-    //fix the element wherever it is
-    tempElem.style.top = rect.top + "px";
-    document.querySelector(".emoji-style-cont").style.marginTop = 305 + "px";
-  }
+  // if (STATE.isPhone) {
+  //   let tempElem = document.querySelector(".map-container")
+  //   tempElem = document.querySelector(".map-container")
+  //   var rect = tempElem.getBoundingClientRect();
+  //   tempElem.style.position = "fixed";
+  //   //fix the element wherever it is
+  //   tempElem.style.top = rect.top + "px";
+  //   document.querySelector(".emoji-style-cont").style.marginTop = 305 + "px";
+  // }
 }
 
 function lockMap() {
@@ -230,10 +230,10 @@ function lockMap() {
   MAP.scrollZoom.disable();
   MAP.dragPan.disable();
   MAP.touchZoomRotate.disable();
-  if (STATE.isPhone) {
-    document.querySelector(".map-container").style.position = "static";
-    document.querySelector(".emoji-style-cont").style.marginTop = 0;
-  }
+  // if (STATE.isPhone) {
+  //   document.querySelector(".map-container").style.position = "static";
+  //   document.querySelector(".emoji-style-cont").style.marginTop = 0;
+  // }
 }
 
 function getRoute(coordinates, callback) {

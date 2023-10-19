@@ -113,9 +113,9 @@ MAP.on("style.load", () => {
 
 MAP.on("click", (e) => {
   // console.log(convertLocToCoords([72.82950535210355, 19.097907448892187], MAP_DATA.mapZoom, MAP.transform.pixelMatrix));
-  STATE.lngLat = Object.values(e.lngLat);
   //create a temporary marker
   if (STATE.markerImage && !STATE.isPhone) {
+    STATE.lngLat = Object.values(e.lngLat);
     STATE.tempMarker = addMarker(STATE.markerImage, STATE.lngLat, STATE.markerSize);
     STATE.markerImage = "";
     // STATE.markers.push(marker);
@@ -179,6 +179,7 @@ LABEL_INPUT.onblur = () => {
     if (STATE.isPhone) {
       lockMap();
     }
+    STATE.enterClicked = false;
   }
 };
 
