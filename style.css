@@ -485,6 +485,9 @@ div.title-pad > i::before{
     --emoji-size: 17px;
     height: calc(85% - 30px) !important;
   }
+  .place-input-gap{
+    height: 0;
+  }
   body,
   .main-window {
     flex-direction: column;
@@ -495,7 +498,7 @@ div.title-pad > i::before{
     position: fixed;
     z-index: 99;
     background: white;
-    height: 375px;
+    height: fit-content;
     margin: 0;
     top: 0;
   }
@@ -507,7 +510,6 @@ div.title-pad > i::before{
     height: 45px;
   }
   .emoji-style-cont {
-    margin-top: 375px;
     height: 510px;
   }
 

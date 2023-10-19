@@ -10,7 +10,9 @@ async function checkAndLoadFakeDB() {
     try {
       const idbFailed = await new Promise((resolve) => {
         const db = indexedDB.open("test-idb");
-        db.onerror = () => resolve(true);
+        db.onerror = () => {
+          resolve(true);
+        };
         db.onsuccess = () => {
           indexedDB.deleteDatabase("test-idb");
           resolve(false);
@@ -29,6 +31,7 @@ async function checkAndLoadFakeDB() {
     await import("https://d1wxxs914x4wga.cloudfront.net/emoji/fakeIndexedDB.js");
     // Can't override the indexedDB global, but we can monkey-patch it
     for (const func of ["open", "deleteDatabase"]) {
+      console.log(func);
       indexedDB[func] = FakeIndexedDB[func].bind(FakeIndexedDB);
     }
     for (const func of ["bound", "lowerBound", "upperBound", "only"]) {
@@ -70,22 +73,26 @@ function loadMap() {
     })
   );
 
-  fitMap()
+  fitMap();
 }
 
-function fitMap(){
+function fitMap() {
   let mapParent = document.querySelector(".map");
-  let mapParentHeight = parseFloat(getComputedStyle(mapParent).height) + (STATE.isPhone? 0 : 5)
+  let mapParentHeight = parseFloat(getComputedStyle(mapParent).height) + (STATE.isPhone ? 0 : 5);
   STATE.mapHeightMultiplier = mapParentHeight / 500;
   document.getElementById("map").style.transform = `scale(${STATE.mapHeightMultiplier})`;
 }
 
 async function init() {
-  if(window.innerWidth <= 320){
-    STATE.isPhone = true
-  }
-  loadMap();
-  if (STATE.isPhone) lockMap();
+  await checkAndLoadFakeDB();
+  const { Picker } = await import("https://unpkg.com/emoji-picker-element@1");
+
+  EMOJI_PICKER = new Picker({
+    dataSource: "https://cdn.jsdelivr.net/npm/emoji-picker-element-data@%5E1/en/emojibase/data.json",
+  });
+
+  EMOJI_PICKER.classList.add("light");
+  EMOJI_CONT.insertBefore(EMOJI_PICKER, EMOJI_SIZE);
   let cStyle = document.createElement("style");
   cStyle.innerHTML = `
             .active-emo{
@@ -109,7 +116,11 @@ async function init() {
       EMOJI_PICKER.shadowRoot.appendChild(cStyle);
     }
   }, 100);
-  await checkAndLoadFakeDB();
+  if (window.innerWidth <= 320) {
+    STATE.isPhone = true;
+  }
+  loadMap();
+  if (STATE.isPhone) lockMap();
   await Promise.all([loadFonts(FONTS_TO_LOAD), loadStyles()]);
 }
 
@@ -143,7 +154,7 @@ async function loadStyles() {
           if (style != MAP_DATA.mapStyle) {
             STATE.styleTitle = mapStyle.Title;
             MAP_DATA.mapStyle = style;
-            updateMapData()
+            updateMapData();
             upDateMap(MAP_DATA);
             STATE.mapStyle = style;
           }
@@ -167,8 +178,7 @@ function upDateMap(MAP_DATA) {
       let activeStyleElem = document.querySelector(`[styleidlabelled="${MAP_DATA.mapStyle}"]`) || document.querySelector(`[styleid="${MAP_DATA.mapStyle}"]`);
       activeStyleElem.click();
     }
-  } catch (error) {
-  }
+  } catch (error) {}
   MAP.setZoom(MAP_DATA.mapZoom);
   MAP.setBearing(MAP_DATA.mapBearing);
   MAP.setCenter(MAP_DATA.mapCenter);
@@ -204,8 +214,13 @@ function unlockMap() {
   MAP.dragPan.enable();
   MAP.touchZoomRotate.enable();
   if (STATE.isPhone) {
-    document.querySelector(".map-container").style.position = "fixed";
-    document.querySelector(".emoji-style-cont").style.marginTop = 375 + "px";
+    let tempElem = document.querySelector(".map-container")
+    tempElem = document.querySelector(".map-container")
+    var rect = tempElem.getBoundingClientRect();
+    tempElem.style.position = "fixed";
+    //fix the element wherever it is
+    tempElem.style.top = rect.top + "px";
+    document.querySelector(".emoji-style-cont").style.marginTop = 305 + "px";
   }
 }
 
@@ -258,7 +273,7 @@ function displayRoute(coordinates) {
     } else {
       landColor = MAP.getPaintProperty("land", "background-color") || MAP.getPaintProperty("background", "background-color");
     }
-    updateMapData({routeColor: colorToHex(getNegativeColor(landColor))})
+    updateMapData({ routeColor: colorToHex(getNegativeColor(landColor)) });
     // Add a new source and layer if they don't exist
     MAP.addSource("route-source", {
       type: "geojson",
@@ -403,7 +418,7 @@ function getNegativeColor(color) {
 
 function colorToHex(color) {
   // Create a temporary div to utilize browser's ability to convert colors
-  const div = document.createElement('div');
+  const div = document.createElement("div");
   div.style.color = color;
 
   // Attach the div to the body to compute the computed style
@@ -411,7 +426,7 @@ function colorToHex(color) {
 
   // Get the computed style
   const computedColor = getComputedStyle(div).color;
-  
+
   // Remove the div after getting the computed style
   document.body.removeChild(div);
 
@@ -420,14 +435,14 @@ function colorToHex(color) {
   const [r, g, b] = match;
 
   // Convert RGB to Hex
-  const hex = `${Number(r).toString(16).padStart(2, '0')}${Number(g).toString(16).padStart(2, '0')}${Number(b).toString(16).padStart(2, '0')}`;
+  const hex = `${Number(r).toString(16).padStart(2, "0")}${Number(g).toString(16).padStart(2, "0")}${Number(b).toString(16).padStart(2, "0")}`;
 
   return hex.toUpperCase();
 }
 
 function updateMapData(mapData, save = true) {
   console.log(mapData);
-  if(mapData){
+  if (mapData) {
     if (mapData.mapCenter) MAP_DATA.mapCenter = mapData.mapCenter;
     if (mapData.mapZoom) MAP_DATA.mapZoom = mapData.mapZoom;
     if (mapData.mapBearing) MAP_DATA.mapBearing = mapData.mapBearing;
@@ -438,10 +453,10 @@ function updateMapData(mapData, save = true) {
     if (mapData.routeColor) MAP_DATA.routeColor = mapData.routeColor;
   }
   MAP_DATA.markers.forEach((marker) => {
-    marker.markerCoordinates = Object.values(MAP.project({lng: marker.markerLocation[0], lat: marker.markerLocation[1]}))
+    marker.markerCoordinates = Object.values(MAP.project({ lng: marker.markerLocation[0], lat: marker.markerLocation[1] }));
   });
-  if(save){
-    saveState()
+  if (save) {
+    saveState();
   }
 }
 
@@ -459,9 +474,9 @@ function updateMarkersList(mapData) {
   });
 
   draggableElem.onDrag((e) => {
-    updateMapData({markers: e.listArray})
+    updateMapData({ markers: e.listArray });
     console.log(e);
-    upDateMap(MAP_DATA)
+    upDateMap(MAP_DATA);
   });
 }
 
@@ -515,12 +530,12 @@ function deleteMarker(index) {
   STATE.markers[index].remove();
   STATE.markers.splice(index, 1);
   MAP_DATA.markers.splice(index, 1);
-  upDateMap(MAP_DATA)
+  upDateMap(MAP_DATA);
   updateMarkersList(MAP_DATA);
 }
 
 function selectMarker(x, e) {
-  if(!e || e.target.className.indexOf("bi") == "-1"){
+  if (!e || e.target.className.indexOf("bi") == "-1") {
     //remove existing selectedMarker styles
     let selectedMarkerListItem = document.querySelector(".selected-list-item");
     if (selectedMarkerListItem) {
@@ -567,11 +582,10 @@ function selectMarker(x, e) {
     };
     selectedMarkerLabel.onblur = () => {
       MAP_DATA.markers[index].markerLabel = selectedMarkerLabel.textContent.trim();
-      updateMapData()
+      updateMapData();
       selectedMarkerLabel.style.textOverflow = "ellipsis";
       upDateMap(MAP_DATA);
     };
-    
 
     let selectedMarkerElem = STATE.selectedMarker.getElement();
     selectedMarkerElem.classList.add("selectedMarker");
@@ -580,14 +594,14 @@ function selectMarker(x, e) {
     STATE.selectedMarker.on("drag", (e) => {
       if (MAP_DATA.routeType == "AIR") {
         MAP_DATA.markers[index].markerLocation = Object.values(e.target._lngLat);
-        updateMapData()
+        updateMapData();
         renderRoute(MAP_DATA);
       }
     });
     STATE.selectedMarker.on("dragend", (e) => {
       if (MAP_DATA.routeType != "AIR") {
         MAP_DATA.markers[index].markerLocation = Object.values(e.target._lngLat);
-        updateMapData()
+        updateMapData();
         renderRoute(MAP_DATA);
       }
     });
@@ -611,62 +625,54 @@ function deSelectMarker(x) {
   }
 }
 
-
 function postMessage(data) {
-  window.parent.postMessage(data, "*")
+  window.parent.postMessage(data, "*");
 }
 
-function loadState(productData){
-  updateMapData(productData.mapData, false)
-  upDateMap(MAP_DATA)
-  updateMarkersList(MAP_DATA)
+function loadState(productData) {
+  updateMapData(productData.mapData, false);
+  upDateMap(MAP_DATA);
+  updateMarkersList(MAP_DATA);
 }
 
-function saveState(){
-  PRODUCT_DATA.mapData = MAP_DATA
-  PRODUCT_DATA.title = MAP_DATA.title
+function saveState() {
+  PRODUCT_DATA.mapData = MAP_DATA;
+  PRODUCT_DATA.title = MAP_DATA.title;
   postMessage({
     type: "SAVE_STATE",
     payload: PRODUCT_DATA,
-  })
+  });
 }
 
-function setPreview(mapData){
-  
-}
+function setPreview(mapData) {}
 
-function generatePreview(mapData){  
-}
+function generatePreview(mapData) {}
 
-function convertLocToCoords(coords, mapZoom, pixelMatrix){
+function convertLocToCoords(coords, mapZoom, pixelMatrix) {
   function project(lng, lat) {
     const x = mercatorXfromLng(lng);
     const y = mercatorYfromLat(lat);
-    return {x, y, z: 0};
+    return { x, y, z: 0 };
   }
-  
-  function mercatorXfromLng(lng){
+
+  function mercatorXfromLng(lng) {
     return (180 + lng) / 360;
   }
-  
-  function mercatorYfromLat(lat){
-    return (180 - (180 / Math.PI * Math.log(Math.tan(Math.PI / 4 + lat * Math.PI / 360)))) / 360;
+
+  function mercatorYfromLat(lat) {
+    return (180 - (180 / Math.PI) * Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI) / 360))) / 360;
   }
-  function locationCoordinate(lngLat, altitude = 0){
-    const z = undefined
+  function locationCoordinate(lngLat, altitude = 0) {
+    const z = undefined;
     const projectedLngLat = project(lngLat.lng, lngLat.lat);
-    return new MercatorCoordinate(
-        projectedLngLat.x,
-        projectedLngLat.y,
-        z);
+    return new MercatorCoordinate(projectedLngLat.x, projectedLngLat.y, z);
   }
-  coords = locationCoordinate({ lng:
-    coords[0], lat: coords[1]})
+  coords = locationCoordinate({ lng: coords[0], lat: coords[1] });
   function transformMat4(out, a, m) {
     var x = a[0],
-        y = a[1],
-        z = a[2],
-        w = a[3];
+      y = a[1],
+      z = a[2],
+      w = a[3];
     out[0] = m[0] * x + m[4] * y + m[8] * z + m[12] * w;
     out[1] = m[1] * x + m[5] * y + m[9] * z + m[13] * w;
     out[2] = m[2] * x + m[6] * y + m[10] * z + m[14] * w;
@@ -676,8 +682,5 @@ function convertLocToCoords(coords, mapZoom, pixelMatrix){
   let worldSize = Math.pow(2, mapZoom) * 512;
   const p = [coord.x * worldSize, coord.y * worldSize, coord.toAltitude(), 1];
   transformMat4(p, p, pixelMatrix);
-  return p[3] > 0 ?
-      new Point(p[0] / p[3], p[1] / p[3]) :
-      new Point(Number.MAX_VALUE, Number.MAX_VALUE);
+  return p[3] > 0 ? new Point(p[0] / p[3], p[1] / p[3]) : new Point(Number.MAX_VALUE, Number.MAX_VALUE);
 }
-

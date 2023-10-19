@@ -3,7 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://d1tsukz865bhnw.cloudfront.net/scripts/MemoryMap/MemoryMap.css" />
@@ -14,7 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
     <script src="draggable-list.js"></script>
     <title>Document</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div class="main-window">
@@ -30,7 +29,7 @@
             <i class="bi bi-x-circle-fill" id="CLOSE_TITLE"></i>
           </div>
           <i class="bi bi-plus-circle-fill t" id="ADD_TITLE"></i>
-          <input id="LABEL_INPUT"class="label-input" type="text" maxlength="20" />
+          <input id="LABEL_INPUT" class="label-input" type="text" maxlength="20" />
           <div class="ok-cancel" id="OK_CANCEL">
             <div>
               <i id="CANCEL_BUTTON" class="bi bi-x-circle-fill"></i>
@@ -42,11 +41,11 @@
         </div>
       </div>
       <div class="emoji-style-cont">
-        <div class="emoji-cont b-box">
+        <div class="emoji-cont b-box" id="EMOJI_CONT">
           <div class="center-text">Choose your emoji</div>
-          <emoji-picker class="light" id="EMOJI_PICKER"></emoji-picker>
+          <!-- <emoji-picker class="light" id="EMOJI_PICKER"></emoji-picker> -->
           <div class="emoji-size" id="EMOJI_SIZE">
-            Marker Size: 
+            Marker Size:
             <div class="emoji-size-items" value="S">❤️</div>
             <div value="M" class="selected-marker-size emoji-size-items">❤️</div>
             <div class="emoji-size-items" value="L">❤️</div>
@@ -61,38 +60,32 @@
               <label class="form-check-label" for="mapLabelSwitch">Map Label</label>
             </div>
             <div class="route-opt-cont" id="ROUTE_OPTIONS">
-              Route: 
+              Route:
               <div class="form-check">
-                <input class="form-check-input" value="NONE" type="radio" name="flexRadioDefault" id="noRoute" checked>
-                <label class="form-check-label" for="noRoute">
-                  None
-                </label>
+                <input class="form-check-input" value="NONE" type="radio" name="flexRadioDefault" id="noRoute" checked />
+                <label class="form-check-label" for="noRoute"> None </label>
               </div>
               <div class="form-check">
-                <input class="form-check-input" value="AIR" type="radio" name="flexRadioDefault" id="airRoute" checked>
-                <label class="form-check-label" for="airRoute">
-                  Air
-                </label>
-            </div>
+                <input class="form-check-input" value="AIR" type="radio" name="flexRadioDefault" id="airRoute" checked />
+                <label class="form-check-label" for="airRoute"> Air </label>
+              </div>
               <div class="form-check">
-                <input class="form-check-input" value="ROAD" type="radio" name="flexRadioDefault" id="roadRoute">
-                <label class="form-check-label" for="roadRoute">
-                  Road
-                </label>
+                <input class="form-check-input" value="ROAD" type="radio" name="flexRadioDefault" id="roadRoute" />
+                <label class="form-check-label" for="roadRoute"> Road </label>
               </div>
             </div>
           </div>
         </div>
       </div>
       <div class="markers-list-cont b-box">
-        <div style="text-align: center; margin-bottom: 10px;">Markers</div>
+        <div style="text-align: center; margin-bottom: 10px">Markers</div>
         <div id="MARKERS_LIST"></div>
       </div>
     </div>
 
     <div class="next-window">
       <div class="preview-img-cont">
-        <img src="https://static.wixstatic.com/media/33f547_1557a9d87690457c875e97a2e3c1e273~mv2.png" alt="">
+        <img src="https://static.wixstatic.com/media/33f547_1557a9d87690457c875e97a2e3c1e273~mv2.png" alt="" />
       </div>
       <div class="frame-color-size-cont">
         <div class="frame-color-cont">
@@ -106,8 +99,8 @@
           <div class="frame-size-items" value="8x8">8x8</div>
         </div>
         <div class="size-desc-cont">
-          8x8<br>
-          For memories you can’t forget<br>
+          8x8<br />
+          For memories you can’t forget<br />
           This frame size is a reminder that good times exist!
         </div>
       </div>
@@ -118,7 +111,7 @@
       <div class="add-cart-btn-cont">
         <div class="product-desc">
           <div class="product-title">Journey Map</div>
-          <div class="product-subtitle"><span>Frame Color: Dark Brown</span><br><span>Frame Size: 8x8</span><br><span id="TITLE_TXT">Title: No Title Provided  </span></div>
+          <div class="product-subtitle"><span>Frame Color: Dark Brown</span><br /><span>Frame Size: 8x8</span><br /><span id="TITLE_TXT">Title: No Title Provided </span></div>
         </div>
         <div id="price-box">
           <div class="price">Total: ₹1199</div>

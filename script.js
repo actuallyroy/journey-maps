@@ -95,6 +95,7 @@ MAP.on("load", () => {
   });
 
   MAP.on("move", (e) => {
+    console.log(STATE.isPhone);
     if (STATE.isPhone) {
       const center = Object.values(MAP.getCenter());
       if (STATE.tempMarker) {
@@ -114,7 +115,7 @@ MAP.on("click", (e) => {
   // console.log(convertLocToCoords([72.82950535210355, 19.097907448892187], MAP_DATA.mapZoom, MAP.transform.pixelMatrix));
   STATE.lngLat = Object.values(e.lngLat);
   //create a temporary marker
-  if (STATE.markerImage && !isPhone) {
+  if (STATE.markerImage && !STATE.isPhone) {
     STATE.tempMarker = addMarker(STATE.markerImage, STATE.lngLat, STATE.markerSize);
     STATE.markerImage = "";
     // STATE.markers.push(marker);
