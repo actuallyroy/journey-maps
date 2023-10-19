@@ -90,7 +90,7 @@ const DEFAULT_MAP_STYLE = {
 const MAP_DATA = {
   mapStyle: DEFAULT_MAP_STYLE.labelled,
   mapZoom: 15,
-  routeType: null,
+  routeType: "AIR",
   routeColor: "",
   mapBearing: 0,
   mapCenter: [55.14, 25.069],
