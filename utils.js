@@ -89,8 +89,8 @@ async function init() {
   }
   loadMap();
   if (STATE.isPhone) lockMap();
-  await loadFonts(FONTS_TO_LOAD)
-  await loadStyles()
+  await loadFonts(FONTS_TO_LOAD);
+  await loadStyles();
   await checkAndLoadFakeDB();
   const { Picker } = await import("https://unpkg.com/emoji-picker-element@1");
 
@@ -631,7 +631,24 @@ function postMessage(data) {
 }
 
 function loadState(productData) {
-  updateMapData(productData.mapData, false);
+  let mapData = productData.mapData;
+
+  //For Backwards Compatibility
+  const temp = {
+    20: "S",
+    30: "M",
+    40: "L",
+  };
+  if (productData.mapData.message != undefined) {
+    mapData.title = mapData.message;
+    delete mapData.message;
+    mapData.markers.forEach((marker) => {
+      marker.markerSize = temp[marker.markerSize];
+    });
+  }
+  //-------------End-----------
+
+  updateMapData(mapData, false);
   upDateMap(MAP_DATA);
   updateMarkersList(MAP_DATA);
 }
