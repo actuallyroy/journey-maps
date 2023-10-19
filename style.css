@@ -510,6 +510,7 @@ div.title-pad > i::before{
   }
   .emoji-style-cont {
     height: 510px;
+    margin-top: 0;
   }
 
   .right-panel {
