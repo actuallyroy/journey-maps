@@ -353,6 +353,10 @@ window.onmessage = (e) => {
         }
       });
       break;
+    case "PRICE":
+      PRODUCT_DATA.price = e.data.payload.prices[PRODUCT_DATA.frameSize];
+      PRICE_TEXT.innerHTML = "Total: " + e.data.payload.currencySymbol + PRODUCT_DATA.price
+      break;
     default:
       break;
   }

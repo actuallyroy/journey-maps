@@ -318,7 +318,7 @@ function renderRoute(MAP_DATA) {
       var line = turf.lineString(coordinates);
       var curved = turf.bezierSpline(line, { sharpness: 1 });
       displayRoute(curved.geometry.coordinates);
-      airRoute.click()
+      // airRoute.click()
       break;
     case "ROAD":
       getRoute(
@@ -329,7 +329,7 @@ function renderRoute(MAP_DATA) {
             return;
           }
           displayRoute(coordinates);
-          roadRoute.click();
+          // roadRoute.click();
         }
       );
       break;
@@ -338,7 +338,7 @@ function renderRoute(MAP_DATA) {
         MAP.removeLayer("curved-line");
         MAP.removeSource("route-source");
       }
-      noRoute.click()
+      // noRoute.click()
       break;
     default:
       break;
