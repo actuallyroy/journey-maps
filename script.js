@@ -83,27 +83,9 @@ await init();
 // updateMapData(null, false);
 // updateMarkersList(MAP_DATA);
 
-console.log(MAP.transform.worldSize);
 MAP.on("load", () => {
-  MAP.on("moveend", (e) => {
-    console.log("moveend");
-    const center = Object.values(MAP.getCenter());
-    const zoom = MAP.getZoom();
-    const bearing = MAP.getBearing();
-    updateMapData({ mapCenter: center, mapZoom: zoom, mapBearing: bearing });
-    console.log(MAP.transform.pixelMatrix[8]);
-  });
-
-  MAP.on("move", (e) => {
-    console.log(STATE.isPhone);
-    if (STATE.isPhone) {
-      const center = Object.values(MAP.getCenter());
-      if (STATE.tempMarker) {
-        STATE.tempMarker.setLngLat(center);
-      }
-    }
-  });
 });
+
 
 MAP.on("style.load", () => {
   renderRoute(MAP_DATA);
@@ -308,7 +290,7 @@ ADD_TO_CART_BTN.onclick = () => {
   // console.log(MAP.getCanvas().toDataURL());
   PRODUCT_DATA.title = MAP_DATA.title;
   PRODUCT_DATA.mapData = MAP_DATA;
-  postMessage({
+  _postMessage({
     type: "ADD_TO_CART",
     payload: PRODUCT_DATA,
   });
@@ -327,7 +309,7 @@ NEXT_BTN.onclick = () => {
     STATE.currentWindow = 1;
   }
   let temp = getComputedStyle(document.body);
-  postMessage({
+  _postMessage({
     type: "NEXT",
     payload: {
       height: parseFloat(temp.height),
@@ -350,15 +332,33 @@ window.onmessage = (e) => {
       MAP.setCenter(e.data.payload.lngLat);
       break;
     case "LOAD_STATE":
-      console.log(e.data);
       loadState(e.data.payload);
+      break;
+    case "READY":
+      MAP.on("moveend", (e) => {
+        console.log("moveend");
+        const center = Object.values(MAP.getCenter());
+        const zoom = MAP.getZoom();
+        const bearing = MAP.getBearing();
+        updateMapData({ mapCenter: center, mapZoom: zoom, mapBearing: bearing });
+        console.log(MAP.transform.pixelMatrix[8]);
+      });
+      
+      MAP.on("move", (e) => {
+        if (STATE.isPhone) {
+          const center = Object.values(MAP.getCenter());
+          if (STATE.tempMarker) {
+            STATE.tempMarker.setLngLat(center);
+          }
+        }
+      });
       break;
     default:
       break;
   }
 };
 
-postMessage({
+_postMessage({
   type: "READY",
 });
 

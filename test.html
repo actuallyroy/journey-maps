@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=320, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body style="margin: 0; display: flex; justify-content: center;">
+  <iframe id="IFRAME" src="index.html" height="600" width="1500" frameborder="0"></iframe>
+  <script>
+    console.log(IFRAME.contentWindow);
+    window.onmessage = (e) => {
+      console.log(e.data.type);
+      switch (e.data.type) {
+        case "SAVE_STATE":
+          console.log(e.data);
+          sessionStorage.setItem("mapData", JSON.stringify(e.data.payload))
+          break;
+        default:
+          break;
+      }
+      if(e.data.type == "READY"){
+        let mapData = JSON.parse(sessionStorage.getItem("mapData"))
+        if(mapData){
+          console.log(IFRAME.contentWindow);
+          IFRAME.contentWindow.postMessage({
+            type: "LOAD_STATE",
+            payload: mapData
+          }, "*")
+        }
+      }
+      IFRAME.contentWindow.postMessage({type: "READY"}, "*")
+    }
+  </script>
+</body>
+</html>

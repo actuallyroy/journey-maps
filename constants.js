@@ -112,7 +112,7 @@ const MAP_OPTIONS = {
   crossSourceCollisions: false,
   pitchWithRotate: false,
   touchPitch: false,
-  preserveDrawingBuffer: true,
+  // preserveDrawingBuffer: true,
 };
 
 const MAP_STYLE_FONTS = {

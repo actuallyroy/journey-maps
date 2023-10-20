@@ -145,13 +145,7 @@ async function loadStyles() {
           if (activeStyle) activeStyle.classList.remove("active-style");
           mapStyleElem.classList.add("active-style");
           var style = mapStyle.styleId;
-          currentLabelFont = MAP_STYLE_FONTS[mapStyle.Title];
-          let allLabels = document.querySelectorAll(".label");
-          allLabels.forEach((label) => {
-            label.style.fontFamily = currentLabelFont;
-          });
           if (MAP_LABEL_SWITCH.checked) style = mapStyle.styleIdLabelled;
-          // don't change the mapStyle if it's the same
           if (style != MAP_DATA.mapStyle) {
             STATE.styleTitle = mapStyle.Title;
             MAP_DATA.mapStyle = style;
@@ -177,6 +171,11 @@ function upDateMap(MAP_DATA) {
     if (MAP.getStyle().sprite.indexOf(temp) == -1) {
       MAP.setStyle(MAP_DATA.mapStyle);
       let activeStyleElem = document.querySelector(`[styleidlabelled="${MAP_DATA.mapStyle}"]`) || document.querySelector(`[styleid="${MAP_DATA.mapStyle}"]`);
+      if(document.querySelector(`[styleidlabelled="${MAP_DATA.mapStyle}"]`)){
+        MAP_LABEL_SWITCH.checked = true;
+      }else{
+        MAP_LABEL_SWITCH.checked = false;
+      }
       activeStyleElem.click();
     }
   } catch (error) {}
@@ -244,7 +243,7 @@ function getRoute(coordinates, callback) {
     .then((data) => {
       let res = [];
       data.routes[0].geometry.coordinates.forEach((coordinate, index) => {
-        if (index % 10 == 0) res.push(coordinate);
+        res.push(coordinate);
       });
       route = {};
       callback(null, res);
@@ -315,11 +314,11 @@ function renderRoute(MAP_DATA) {
   }
   switch (MAP_DATA.routeType) {
     case "AIR":
-      console.log();
       let coordinates = MAP_DATA.markers.map((marker) => marker.markerLocation);
       var line = turf.lineString(coordinates);
       var curved = turf.bezierSpline(line, { sharpness: 1 });
       displayRoute(curved.geometry.coordinates);
+      airRoute.click()
       break;
     case "ROAD":
       getRoute(
@@ -330,6 +329,7 @@ function renderRoute(MAP_DATA) {
             return;
           }
           displayRoute(coordinates);
+          roadRoute.click();
         }
       );
       break;
@@ -338,6 +338,7 @@ function renderRoute(MAP_DATA) {
         MAP.removeLayer("curved-line");
         MAP.removeSource("route-source");
       }
+      noRoute.click()
       break;
     default:
       break;
@@ -626,7 +627,7 @@ function deSelectMarker(x) {
   }
 }
 
-function postMessage(data) {
+function _postMessage(data) {
   window.parent.postMessage(data, "*");
 }
 
@@ -656,7 +657,7 @@ function loadState(productData) {
 function saveState() {
   PRODUCT_DATA.mapData = MAP_DATA;
   PRODUCT_DATA.title = MAP_DATA.title;
-  postMessage({
+  _postMessage({
     type: "SAVE_STATE",
     payload: PRODUCT_DATA,
   });
