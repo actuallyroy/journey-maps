@@ -312,13 +312,16 @@ function renderRoute(MAP_DATA) {
     }
     return;
   }
+  airRoute.checked = false;
+  roadRoute.checked = false;
+  noRoute.checked = false;
   switch (MAP_DATA.routeType) {
     case "AIR":
       let coordinates = MAP_DATA.markers.map((marker) => marker.markerLocation);
       var line = turf.lineString(coordinates);
       var curved = turf.bezierSpline(line, { sharpness: 1 });
       displayRoute(curved.geometry.coordinates);
-      // airRoute.click()
+      airRoute.checked = true
       break;
     case "ROAD":
       getRoute(
@@ -329,7 +332,7 @@ function renderRoute(MAP_DATA) {
             return;
           }
           displayRoute(coordinates);
-          // roadRoute.click();
+          roadRoute.checked = true
         }
       );
       break;
@@ -338,7 +341,7 @@ function renderRoute(MAP_DATA) {
         MAP.removeLayer("curved-line");
         MAP.removeSource("route-source");
       }
-      // noRoute.click()
+      noRoute.checked = true
       break;
     default:
       break;
