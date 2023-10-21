@@ -647,7 +647,6 @@ function loadState(productData) {
     30: "M",
     40: "L",
   };
-  mapData.mapCenter = [15.38, 43.97]
   if (productData.mapData.message != undefined) {
     mapData.title = mapData.message;
     delete mapData.message;
