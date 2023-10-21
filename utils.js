@@ -171,9 +171,9 @@ function upDateMap(MAP_DATA) {
     if (MAP.getStyle().sprite.indexOf(temp) == -1) {
       MAP.setStyle(MAP_DATA.mapStyle);
       let activeStyleElem = document.querySelector(`[styleidlabelled="${MAP_DATA.mapStyle}"]`) || document.querySelector(`[styleid="${MAP_DATA.mapStyle}"]`);
-      if(document.querySelector(`[styleidlabelled="${MAP_DATA.mapStyle}"]`)){
+      if (document.querySelector(`[styleidlabelled="${MAP_DATA.mapStyle}"]`)) {
         MAP_LABEL_SWITCH.checked = true;
-      }else{
+      } else {
         MAP_LABEL_SWITCH.checked = false;
       }
       activeStyleElem.click();
@@ -317,31 +317,35 @@ function renderRoute(MAP_DATA) {
   noRoute.checked = false;
   switch (MAP_DATA.routeType) {
     case "AIR":
-      let coordinates = MAP_DATA.markers.map((marker) => marker.markerLocation);
-      var line = turf.lineString(coordinates);
-      var curved = turf.bezierSpline(line, { sharpness: 1 });
-      displayRoute(curved.geometry.coordinates);
-      airRoute.checked = true
+      if (MAP_DATA.markers.length >= 2) {
+        let coordinates = MAP_DATA.markers.map((marker) => marker.markerLocation);
+        var line = turf.lineString(coordinates);
+        var curved = turf.bezierSpline(line, { sharpness: 1 });
+        displayRoute(curved.geometry.coordinates);
+        airRoute.checked = true;
+      }
       break;
     case "ROAD":
-      getRoute(
-        MAP_DATA.markers.map((marker) => marker.markerLocation),
-        (err, coordinates) => {
-          if (err) {
-            console.log(err);
-            return;
+      if (MAP_DATA.markers.length >= 2) {
+        getRoute(
+          MAP_DATA.markers.map((marker) => marker.markerLocation),
+          (err, coordinates) => {
+            if (err) {
+              console.log(err);
+              return;
+            }
+            displayRoute(coordinates);
+            roadRoute.checked = true;
           }
-          displayRoute(coordinates);
-          roadRoute.checked = true
-        }
-      );
+        );
+      }
       break;
     case "NONE":
       if (MAP.getSource("route-source")) {
         MAP.removeLayer("curved-line");
         MAP.removeSource("route-source");
       }
-      noRoute.checked = true
+      noRoute.checked = true;
       break;
     default:
       break;
@@ -497,14 +501,14 @@ function highLightClickedEmoji() {
 
 function setCursorImg(imgUrl) {
   if (imgUrl == "none" || !imgUrl) {
-    // document.body.style.cursor = `auto`;
+    document.body.style.cursor = `auto`;
     document.querySelector(".mapboxgl-canvas-container.mapboxgl-interactive").style.cursor = `auto`;
     return;
   }
   let tempImg = new Image();
   tempImg.src = imgUrl;
   tempImg.onload = () => {
-    // document.body.style.cursor = `url(${imgUrl}) ${tempImg.width / 2} ${tempImg.height / 2}, auto`;
+    document.body.style.cursor = `url(${imgUrl}) ${tempImg.width / 2} ${tempImg.height / 2}, auto`;
     document.querySelector(".mapboxgl-canvas-container.mapboxgl-interactive").style.cursor = `url(${imgUrl}) ${tempImg.width / 2} ${tempImg.height}, auto`;
   };
 }
@@ -532,6 +536,7 @@ function markerDelBtn(elem) {
 }
 
 function deleteMarker(index) {
+  if(!index) index = STATE.selectedMarker.index
   STATE.markers[index].remove();
   STATE.markers.splice(index, 1);
   MAP_DATA.markers.splice(index, 1);
@@ -557,7 +562,6 @@ function selectMarker(x, e) {
       STATE.selectedMarker.getElement().classList.remove("selectedMarker");
     }
     let index;
-    console.log(x);
     if (typeof x == "number") {
       index = x;
       selectedMarkerListItem = document.querySelector(`[index="${index}"]`);
@@ -643,6 +647,7 @@ function loadState(productData) {
     30: "M",
     40: "L",
   };
+  mapData.mapCenter = [15.38, 43.97]
   if (productData.mapData.message != undefined) {
     mapData.title = mapData.message;
     delete mapData.message;

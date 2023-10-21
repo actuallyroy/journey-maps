@@ -20,6 +20,36 @@ emoji-picker {
   --emoji-size: 1.25vw;
   --border-size: 0px;
 }
+.tutorial-text{
+  visibility: hidden;
+  position: absolute;
+  top: 50%;
+  z-index: 99;
+  left: 50%;
+  transform: translate(-50%, 0);
+  text-transform: uppercase;
+  font-weight: bold;
+  background: white;
+  padding: 5px;
+  border-radius: 5px;
+  text-align: center;
+}
+.fade-text{
+  animation: fade-out 3s ease-in-out;
+}
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+    visibility: visible;
+  }
+  50%{
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
 .mapboxgl-ctrl-logo {
   display: none !important;
 }
