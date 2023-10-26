@@ -155,8 +155,10 @@ emoji-picker {
 }
 #map {
   position: absolute;
-  height: 500px;
-  width: 500px;
+  /* height: 500px;
+  width: 500px; */
+  height: 4in;
+  aspect-ratio: 1/1;
   transform-origin: left top;
 }
 .style-cont {
@@ -211,6 +213,10 @@ emoji-picker {
   cursor: pointer;
 }
 
+.marker:hover{
+  filter: drop-shadow(0 0 4px black);
+}
+
 .route-opt-cont {
   display: flex;
   gap: 4px;
@@ -244,7 +250,7 @@ emoji-picker {
   color: #333;
   right: 10px;
   display: flex;
-  top: 460px;
+  bottom: 10px;
   box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   justify-content: center;
@@ -260,6 +266,10 @@ emoji-picker {
   margin-bottom: 10px;
   border: 1px solid transparent;
   
+}
+.list-item:hover{
+  border: 1px solid #919191;
+  border-radius: 3px;
 }
 
 .marker-list-elem, .list-item {
@@ -304,7 +314,7 @@ emoji-picker {
 }
 
 .selected-list-item{
-  border: 1px solid;
+  border: 1px solid !important;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
   border-radius: 3px;
 }
