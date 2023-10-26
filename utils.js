@@ -79,7 +79,8 @@ function loadMap() {
 function fitMap() {
   let mapParent = document.querySelector(".map");
   let mapParentHeight = parseFloat(getComputedStyle(mapParent).height) + (STATE.isPhone ? 0 : 5);
-  STATE.mapHeightMultiplier = mapParentHeight / 500;
+  let mapHeight = parseFloat(getComputedStyle(map).height)
+  STATE.mapHeightMultiplier = mapParentHeight / mapHeight;
   document.getElementById("map").style.transform = `scale(${STATE.mapHeightMultiplier})`;
 }
 
@@ -145,13 +146,7 @@ async function loadStyles() {
           if (activeStyle) activeStyle.classList.remove("active-style");
           mapStyleElem.classList.add("active-style");
           var style = mapStyle.styleId;
-          currentLabelFont = MAP_STYLE_FONTS[mapStyle.Title];
-          let allLabels = document.querySelectorAll(".label");
-          allLabels.forEach((label) => {
-            label.style.fontFamily = currentLabelFont;
-          });
           if (MAP_LABEL_SWITCH.checked) style = mapStyle.styleIdLabelled;
-          // don't change the mapStyle if it's the same
           if (style != MAP_DATA.mapStyle) {
             STATE.styleTitle = mapStyle.Title;
             MAP_DATA.mapStyle = style;
@@ -177,6 +172,11 @@ function upDateMap(MAP_DATA) {
     if (MAP.getStyle().sprite.indexOf(temp) == -1) {
       MAP.setStyle(MAP_DATA.mapStyle);
       let activeStyleElem = document.querySelector(`[styleidlabelled="${MAP_DATA.mapStyle}"]`) || document.querySelector(`[styleid="${MAP_DATA.mapStyle}"]`);
+      if (document.querySelector(`[styleidlabelled="${MAP_DATA.mapStyle}"]`)) {
+        MAP_LABEL_SWITCH.checked = true;
+      } else {
+        MAP_LABEL_SWITCH.checked = false;
+      }
       activeStyleElem.click();
     }
   } catch (error) {}
@@ -244,7 +244,7 @@ function getRoute(coordinates, callback) {
     .then((data) => {
       let res = [];
       data.routes[0].geometry.coordinates.forEach((coordinate, index) => {
-        if (index % 10 == 0) res.push(coordinate);
+        res.push(coordinate);
       });
       route = {};
       callback(null, res);
@@ -313,31 +313,40 @@ function renderRoute(MAP_DATA) {
     }
     return;
   }
+  airRoute.checked = false;
+  roadRoute.checked = false;
+  noRoute.checked = false;
   switch (MAP_DATA.routeType) {
     case "AIR":
-      console.log();
-      let coordinates = MAP_DATA.markers.map((marker) => marker.markerLocation);
-      var line = turf.lineString(coordinates);
-      var curved = turf.bezierSpline(line, { sharpness: 1 });
-      displayRoute(curved.geometry.coordinates);
+      if (MAP_DATA.markers.length >= 2) {
+        let coordinates = MAP_DATA.markers.map((marker) => marker.markerLocation);
+        var line = turf.lineString(coordinates);
+        var curved = turf.bezierSpline(line, { sharpness: 1 });
+        displayRoute(curved.geometry.coordinates);
+        airRoute.checked = true;
+      }
       break;
     case "ROAD":
-      getRoute(
-        MAP_DATA.markers.map((marker) => marker.markerLocation),
-        (err, coordinates) => {
-          if (err) {
-            console.log(err);
-            return;
+      if (MAP_DATA.markers.length >= 2) {
+        getRoute(
+          MAP_DATA.markers.map((marker) => marker.markerLocation),
+          (err, coordinates) => {
+            if (err) {
+              console.log(err);
+              return;
+            }
+            displayRoute(coordinates);
+            roadRoute.checked = true;
           }
-          displayRoute(coordinates);
-        }
-      );
+        );
+      }
       break;
     case "NONE":
       if (MAP.getSource("route-source")) {
         MAP.removeLayer("curved-line");
         MAP.removeSource("route-source");
       }
+      noRoute.checked = true;
       break;
     default:
       break;
@@ -493,14 +502,14 @@ function highLightClickedEmoji() {
 
 function setCursorImg(imgUrl) {
   if (imgUrl == "none" || !imgUrl) {
-    // document.body.style.cursor = `auto`;
+    document.body.style.cursor = `auto`;
     document.querySelector(".mapboxgl-canvas-container.mapboxgl-interactive").style.cursor = `auto`;
     return;
   }
   let tempImg = new Image();
   tempImg.src = imgUrl;
   tempImg.onload = () => {
-    // document.body.style.cursor = `url(${imgUrl}) ${tempImg.width / 2} ${tempImg.height / 2}, auto`;
+    document.body.style.cursor = `url(${imgUrl}) ${tempImg.width / 2} ${tempImg.height / 2}, auto`;
     document.querySelector(".mapboxgl-canvas-container.mapboxgl-interactive").style.cursor = `url(${imgUrl}) ${tempImg.width / 2} ${tempImg.height}, auto`;
   };
 }
@@ -528,6 +537,7 @@ function markerDelBtn(elem) {
 }
 
 function deleteMarker(index) {
+  if(!index) index = STATE.selectedMarker.index
   STATE.markers[index].remove();
   STATE.markers.splice(index, 1);
   MAP_DATA.markers.splice(index, 1);
@@ -553,7 +563,6 @@ function selectMarker(x, e) {
       STATE.selectedMarker.getElement().classList.remove("selectedMarker");
     }
     let index;
-    console.log(x);
     if (typeof x == "number") {
       index = x;
       selectedMarkerListItem = document.querySelector(`[index="${index}"]`);
@@ -626,7 +635,7 @@ function deSelectMarker(x) {
   }
 }
 
-function postMessage(data) {
+function _postMessage(data) {
   window.parent.postMessage(data, "*");
 }
 
@@ -656,7 +665,7 @@ function loadState(productData) {
 function saveState() {
   PRODUCT_DATA.mapData = MAP_DATA;
   PRODUCT_DATA.title = MAP_DATA.title;
-  postMessage({
+  _postMessage({
     type: "SAVE_STATE",
     payload: PRODUCT_DATA,
   });

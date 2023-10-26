@@ -83,27 +83,9 @@ await init();
 // updateMapData(null, false);
 // updateMarkersList(MAP_DATA);
 
-console.log(MAP.transform.worldSize);
 MAP.on("load", () => {
-  MAP.on("moveend", (e) => {
-    console.log("moveend");
-    const center = Object.values(MAP.getCenter());
-    const zoom = MAP.getZoom();
-    const bearing = MAP.getBearing();
-    updateMapData({ mapCenter: center, mapZoom: zoom, mapBearing: bearing });
-    console.log(MAP.transform.pixelMatrix[8]);
-  });
-
-  MAP.on("move", (e) => {
-    console.log(STATE.isPhone);
-    if (STATE.isPhone) {
-      const center = Object.values(MAP.getCenter());
-      if (STATE.tempMarker) {
-        STATE.tempMarker.setLngLat(center);
-      }
-    }
-  });
 });
+
 
 MAP.on("style.load", () => {
   renderRoute(MAP_DATA);
@@ -115,6 +97,7 @@ MAP.on("click", (e) => {
   // console.log(convertLocToCoords([72.82950535210355, 19.097907448892187], MAP_DATA.mapZoom, MAP.transform.pixelMatrix));
   //create a temporary marker
   if (STATE.markerImage && !STATE.isPhone) {
+    lockMap()
     STATE.lngLat = Object.values(e.lngLat);
     STATE.tempMarker = addMarker(STATE.markerImage, STATE.lngLat, STATE.markerSize);
     STATE.markerImage = "";
@@ -132,7 +115,6 @@ MAP.on("click", (e) => {
 });
 
 window.onkeyup = (e) => {
-  console.log(e.key);
   if (e.key == "Escape") {
     LABEL_INPUT.style.display = "none";
     STATE.markerEmoji = null;
@@ -142,6 +124,14 @@ window.onkeyup = (e) => {
     let activeEmojiElem = EMOJI_PICKER.shadowRoot.querySelectorAll(".active-emo");
     if (activeEmojiElem[1]) activeEmojiElem[1].classList.remove("active-emo");
     if (activeEmojiElem[0]) activeEmojiElem[0].classList.remove("active-emo");
+  }
+  if(e.key == "Enter"){
+    console.log(STATE.tempMarker);
+    if(STATE.tempMarker){
+      STATE.enterClicked = true;
+      LABEL_INPUT.focus()
+      LABEL_INPUT.blur()
+    }
   }
 };
 
@@ -154,10 +144,10 @@ LABEL_INPUT.onkeypress = (e) => {
 };
 
 LABEL_INPUT.onblur = () => {
-  console.log(STATE.enterClicked);
   if (STATE.isPhone || STATE.enterClicked) {
     const label = LABEL_INPUT.value;
     STATE.tempMarker.remove();
+    delete STATE.tempMarker;
     STATE.markerImage = generateMarkerImg(STATE.markerEmoji, label, MAP_STYLE_FONTS[STATE.styleTitle], 100);
     const marker = addMarker(STATE.markerImage, STATE.lngLat, STATE.markerSize, label);
     STATE.markers.push(marker);
@@ -178,6 +168,8 @@ LABEL_INPUT.onblur = () => {
     setCursorImg(null);
     if (STATE.isPhone) {
       lockMap();
+    }else{
+      unlockMap()
     }
     STATE.enterClicked = false;
   }
@@ -209,12 +201,20 @@ LOCK_BUTTON.onclick = () => {
   }
 };
 
+let i = 0;
 EMOJI_PICKER.addEventListener("emoji-click", (event) => {
   if (!STATE.isPhone) {
     highLightClickedEmoji();
     STATE.markerImage = generateMarkerImg(event.detail.unicode, "", "", 100);
     STATE.markerEmoji = event.detail.unicode;
     setCursorImg(emojiToImg(STATE.markerEmoji, MARKER_SIZE_MAP[STATE.markerSize]));
+    if(i < 3){
+      TUT_TEXT.classList.add("fade-text")
+      setTimeout(() => {
+        TUT_TEXT.classList.remove("fade-text")
+      }, 3000);
+      i++;
+    }
   } else {
     highLightClickedEmoji();
     STATE.markerImage = generateMarkerImg(event.detail.unicode, "", "", 100);
@@ -271,6 +271,7 @@ TITLE.onkeypress = (e) => {
   }
 };
 
+
 CLOSE_TITLE.onclick = () => {
   updateMapData({ title: "" });
   TITLE.parentElement.style.display = "none";
@@ -308,7 +309,7 @@ ADD_TO_CART_BTN.onclick = () => {
   // console.log(MAP.getCanvas().toDataURL());
   PRODUCT_DATA.title = MAP_DATA.title;
   PRODUCT_DATA.mapData = MAP_DATA;
-  postMessage({
+  _postMessage({
     type: "ADD_TO_CART",
     payload: PRODUCT_DATA,
   });
@@ -327,7 +328,7 @@ NEXT_BTN.onclick = () => {
     STATE.currentWindow = 1;
   }
   let temp = getComputedStyle(document.body);
-  postMessage({
+  _postMessage({
     type: "NEXT",
     payload: {
       height: parseFloat(temp.height),
@@ -350,16 +351,54 @@ window.onmessage = (e) => {
       MAP.setCenter(e.data.payload.lngLat);
       break;
     case "LOAD_STATE":
-      console.log(e.data);
       loadState(e.data.payload);
+      break;
+    case "READY":
+      let flag = true;
+      MAP.on("moveend", (e) => {
+        if(flag){
+          flag = false;
+          setTimeout(() => {
+            console.log("moveend");
+            const center = Object.values(MAP.getCenter());
+            const zoom = MAP.getZoom();
+            const bearing = MAP.getBearing();
+            updateMapData({ mapCenter: center, mapZoom: zoom, mapBearing: bearing });
+            flag = true;
+          }, 1000);
+        }
+      });
+      
+      MAP.on("move", (e) => {
+        if (STATE.isPhone) {
+          const center = Object.values(MAP.getCenter());
+          if (STATE.tempMarker) {
+            STATE.tempMarker.setLngLat(center);
+          }
+        }
+      });
+      break;
+    case "PRICE":
+      PRODUCT_DATA.price = e.data.payload.prices[PRODUCT_DATA.frameSize];
+      PRICE_TEXT.innerHTML = "Total: " + e.data.payload.currencySymbol + PRODUCT_DATA.price
       break;
     default:
       break;
   }
 };
 
-postMessage({
+_postMessage({
   type: "READY",
 });
 
-window.onclick = (e) => {};
+window.onmousedown = (e) => {
+  if(document.activeElement != LABEL_INPUT && STATE.tempMarker){
+    STATE.enterClicked = true
+    LABEL_INPUT.focus()
+    LABEL_INPUT.blur()
+  }
+  let c = e.target.className
+  if(Math.abs(c.indexOf("list") * c.indexOf("marker") * c.indexOf("trash")) == 1){
+    deSelectMarker()
+  }
+}

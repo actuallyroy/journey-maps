@@ -112,7 +112,7 @@ const MAP_OPTIONS = {
   crossSourceCollisions: false,
   pitchWithRotate: false,
   touchPitch: false,
-  preserveDrawingBuffer: true,
+  // preserveDrawingBuffer: true,
 };
 
 const MAP_STYLE_FONTS = {
@@ -147,7 +147,7 @@ const PRODUCT_DATA = {
   quantity: 1,
   sku: "0055",
   description: "A journey through the memories",
-  title: MAP_DATA.title,
+  title: "Journey Map",
   gifttext: "",
   gift: false,
   frameSize: "8x8",
@@ -155,7 +155,6 @@ const PRODUCT_DATA = {
   cost: "-",
   map_type: "journeymap",
   product_id: "Journey Map",
-  title: "",
   frameColor: "Dark Brown",
   mapData: MAP_DATA,
   product: "JOURNEY_MAP",
