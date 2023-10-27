@@ -79,7 +79,7 @@ function loadMap() {
 function fitMap() {
   let mapParent = document.querySelector(".map");
   let mapParentHeight = parseFloat(getComputedStyle(mapParent).height) + (STATE.isPhone ? 0 : 5);
-  let mapHeight = parseFloat(getComputedStyle(map).height)
+  let mapHeight = parseFloat(getComputedStyle(map).height);
   STATE.mapHeightMultiplier = mapParentHeight / mapHeight;
   document.getElementById("map").style.transform = `scale(${STATE.mapHeightMultiplier})`;
 }
@@ -90,7 +90,8 @@ async function init() {
   }
   loadMap();
   if (STATE.isPhone) lockMap();
-  loadFonts(FONTS_TO_LOAD);
+  if(isAppleDevice) loadFonts(FONTS_TO_LOAD.slice(0, 9));
+  else loadFonts(FONTS_TO_LOAD);
   loadStyles();
   await checkAndLoadFakeDB();
   const { Picker } = await import("https://unpkg.com/emoji-picker-element@1");
@@ -537,7 +538,7 @@ function markerDelBtn(elem) {
 }
 
 function deleteMarker(index) {
-  if(!index) index = STATE.selectedMarker.index
+  if (!index) index = STATE.selectedMarker.index;
   STATE.markers[index].remove();
   STATE.markers.splice(index, 1);
   MAP_DATA.markers.splice(index, 1);
@@ -710,4 +711,13 @@ function convertLocToCoords(coords, mapZoom, pixelMatrix) {
   const p = [coord.x * worldSize, coord.y * worldSize, coord.toAltitude(), 1];
   transformMat4(p, p, pixelMatrix);
   return p[3] > 0 ? new Point(p[0] / p[3], p[1] / p[3]) : new Point(Number.MAX_VALUE, Number.MAX_VALUE);
+}
+
+function isAppleDevice() {
+  // @ts-ignore
+  if (navigator.platform.indexOf("iPhone") != -1 || navigator.platform.indexOf("iPad") != -1 || navigator.platform.indexOf("Mac") != -1) {
+    return true;
+  } else {
+    return false;
+  }
 }
