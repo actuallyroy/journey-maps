@@ -155,9 +155,8 @@ emoji-picker {
 }
 #map {
   position: absolute;
-  /* height: 500px;
-  width: 500px; */
-  height: 4in;
+  height: 500px;
+  width: 500px;
   aspect-ratio: 1/1;
   transform-origin: left top;
 }

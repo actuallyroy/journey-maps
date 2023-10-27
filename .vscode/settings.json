@@ -10,5 +10,5 @@
     "key": "C:\\Users\\sunny\\server.key", //full path of the private key
     "passphrase": "hello world"
   },
-  "liveServer.settings.port": 5501
+  "liveServer.settings.port": 5500
 }
