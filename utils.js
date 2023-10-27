@@ -90,8 +90,8 @@ async function init() {
   }
   loadMap();
   if (STATE.isPhone) lockMap();
-  await loadFonts(FONTS_TO_LOAD);
-  await loadStyles();
+  loadFonts(FONTS_TO_LOAD);
+  loadStyles();
   await checkAndLoadFakeDB();
   const { Picker } = await import("https://unpkg.com/emoji-picker-element@1");
 
